@@ -33,7 +33,24 @@ warnings.filterwarnings('ignore')
 
 MK = r'C:\models\pypsa-gb\resources\market'
 OUTDIR = r'C:\models\pypsa-gb\resources\analysis'
-SCEN = {'HT30_market_w2010': '2030', 'HT40_market_w2010': '2040'}
+# Scenario network key -> label components (horizon year, weather year). A 2x2 grid:
+# FES 2025 Holistic Transition at 2030 & 2040, each on weather year 2010 (low wind,
+# stress case) and 2013 (the model's default renewables year). Both weather years are
+# the only ones with solved wholesale networks on disk; more years need the offline
+# scripts/gap/build_vre_profiles.py path (41-year cutout set), not just an LP re-solve.
+SCEN = {
+    'HT30_market_w2010':    {'year': '2030', 'wy': '2010'},
+    'HT30_market':          {'year': '2030', 'wy': '2013'},
+    'HT40_market_w2010':    {'year': '2040', 'wy': '2010'},
+    'HT40_market_fullyear': {'year': '2040', 'wy': '2013'},
+}
+
+
+def _label(scn):
+    m = SCEN[scn]
+    return f"{m['year']} w{m['wy']}"
+
+
 VOLL = 6000.0
 SOLVER = 'gurobi'
 
@@ -76,8 +93,8 @@ _HTML_TMPL = r"""<!doctype html>
 <button class="themebtn" onclick="toggleTheme()">&#9680; theme</button>
 <div class="wrap">
 <h1>Seasonal storage and the residual-load duration curve</h1>
-<p class="sub">GB, FES 2025 Holistic Transition, weather year 2010 (low wind). Full-year copperplate LP with a seasonal H2 store.</p>
-<p class="meta">Duration curves sort each hourly series independently over 8760 h. Negative net load = VRE surplus. Source: seasonal_storage_lp.py.</p>
+<p class="sub">GB, FES 2025 Holistic Transition, 2030 &amp; 2040, on weather years 2010 (low wind) and 2013. Full-year single-node copperplate LP with a seasonal H2 store.</p>
+<p class="meta">Duration curves sort each hourly series independently over the year. Negative net load = VRE surplus. National energy balance only (no transmission). Source: seasonal_storage_lp.py.</p>
 <nav class="tabs" role="tablist">
   <button class="tab" role="tab" aria-selected="true" onclick="showTab(0)">Duration curves</button>
   <button class="tab" role="tab" aria-selected="false" onclick="showTab(1)">Surplus utilisation</button>
@@ -113,6 +130,8 @@ _HTML_TMPL = r"""<!doctype html>
 <script>
 const DATA=/*__DATA__*/;
 const css=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+const PAL=['--avail','--pre','--post','--h2','--bat','--curt'];
+const scol=i=>css(PAL[i%PAL.length]);
 const tip=document.getElementById('tip');
 function T(e,h){tip.innerHTML=h;tip.style.opacity=1;tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-10)+'px';}
 function H(){tip.style.opacity=0;}
@@ -158,7 +177,7 @@ function hoverLine(e,mount){const el=document.getElementById(mount),c=el._chart;
 
 function drawLDC(){
   const cards=document.getElementById('ldcCards');cards.innerHTML='';
-  DATA.scen.forEach(sc=>{cards.innerHTML+=`<div class="card"><h3>${sc.year}</h3><div id="ldc_${sc.key}"></div></div>`;});
+  DATA.scen.forEach(sc=>{cards.innerHTML+=`<div class="card"><h3>${sc.label}</h3><div id="ldc_${sc.key}"></div></div>`;});
   DATA.scen.forEach(sc=>{const L=DATA.ldc[sc.key];const gw=a=>a.map(v=>+(v/1000).toFixed(2));
     lineChart('ldc_'+sc.key,L.pct,[
       {t:'demand',c:css('--demand'),y:gw(L.demand)},
@@ -189,12 +208,12 @@ function stackBar(mount,rows,unit){
 function drawSurplus(){
   const rows=[],unit='TWh';
   DATA.scen.forEach(sc=>{const d=DATA.surplus[sc.key];
-    rows.push({label:sc.year+' - VRE use',parts:[
+    rows.push({label:sc.label+' - VRE use',parts:[
       {t:'served to demand',c:css('--served'),v:d.served_twh},
       {t:'battery charge',c:css('--bat'),v:d.battery_charge_twh},
       {t:'electrolysis -> H2',c:css('--h2'),v:d.electrolysis_twh},
       {t:'curtailed',c:css('--curt'),v:d.curtail_twh}]});
-    rows.push({label:sc.year+' - firm/flex supply',parts:[
+    rows.push({label:sc.label+' - firm/flex supply',parts:[
       {t:'battery discharge',c:css('--bat'),v:d.battery_discharge_twh},
       {t:'H2 turbine',c:css('--h2'),v:d.h2_turbine_twh},
       {t:'gas',c:css('--gas'),v:d.gas_twh},
@@ -210,23 +229,23 @@ function drawSurplus(){
     curtail_twh:'Curtailed',total_vre_twh:'Total available VRE',battery_discharge_twh:'Battery discharge',
     h2_turbine_twh:'H2 turbine',gas_twh:'Gas',unserved_twh:'Unserved',firm_peak_pre_gw:'Firm peak pre (GW)',
     firm_peak_post_gw:'Firm peak post (GW)'};
-  let t='<table><tr><th>metric</th>'+DATA.scen.map(s=>`<th>${s.year}</th>`).join('')+'</tr>';
+  let t='<table><tr><th>metric</th>'+DATA.scen.map(s=>`<th>${s.label}</th>`).join('')+'</tr>';
   keys.forEach(k=>{t+=`<tr><td>${nm[k]}</td>`+DATA.scen.map(s=>`<td>${DATA.surplus[s.key][k]}</td>`).join('')+'</tr>';});
   t+='</table>';document.getElementById('t_surplus').innerHTML=t;
 }
 
 function drawSoc(){
-  const cols={};DATA.scen.forEach((sc,i)=>cols[sc.key]=[css('--avail'),css('--pre')][i]||css('--accent'));
+  const cols={};DATA.scen.forEach((sc,i)=>cols[sc.key]=scol(i));
   const anyKey=DATA.scen[0].key;const x=DATA.soc[anyKey].day;
-  lineChart('c_soc',x,DATA.scen.map(sc=>({t:sc.year,c:cols[sc.key],y:DATA.soc[sc.key].gwh})),
+  lineChart('c_soc',x,DATA.scen.map(sc=>({t:sc.label,c:cols[sc.key],y:DATA.soc[sc.key].gwh})),
     'GWh','day of year',v=>Math.round(v));
-  legend('lg_soc',DATA.scen.map(sc=>({t:sc.year,c:cols[sc.key]})));
+  legend('lg_soc',DATA.scen.map(sc=>({t:sc.label,c:cols[sc.key]})));
 }
 function drawSizing(){
-  const cols={};DATA.scen.forEach((sc,i)=>cols[sc.key]=[css('--avail'),css('--pre')][i]||css('--accent'));
+  const cols={};DATA.scen.forEach((sc,i)=>cols[sc.key]=scol(i));
   const series=[];DATA.scen.forEach(sc=>{const z=DATA.sizing[sc.key];
-    series.push({t:sc.year+' curtailment',c:cols[sc.key],y:z.curtailment_twh,x:z.h2_store_gwh});
-    series.push({t:sc.year+' gas',c:cols[sc.key],y:z.gas_twh,x:z.h2_store_gwh,dash:1});});
+    series.push({t:sc.label+' curtailment',c:cols[sc.key],y:z.curtailment_twh,x:z.h2_store_gwh});
+    series.push({t:sc.label+' gas',c:cols[sc.key],y:z.gas_twh,x:z.h2_store_gwh,dash:1});});
   // custom multi-x line chart (each series has its own x)
   const el=document.getElementById('c_sizing');const W=560,Hh=300,mL=52,mR=14,mT=12,mB=34,iw=W-mL-mR,ih=Hh-mT-mB;
   const ally=[].concat(...series.map(s=>s.y)),allx=[].concat(...series.map(s=>s.x));
@@ -243,12 +262,11 @@ function drawSizing(){
     s+=`<path d="${d}" fill="none" stroke="${se.c}" stroke-width="1.7" ${se.dash?'stroke-dasharray="4 3"':''}/>`;
     se.x.forEach((xv,i)=>{s+=`<circle cx="${X(xv).toFixed(1)}" cy="${Y(se.y[i]).toFixed(1)}" r="2.4" fill="${se.c}"><title>${esc(se.t)} @ ${xv} GWh: ${se.y[i]} TWh</title></circle>`;});});
   s+='</svg>';el.innerHTML=s;
-  legend('lg_sz',DATA.scen.map((sc,i)=>({t:sc.year,c:cols[sc.key]})).concat([{t:'solid=curtailment, dashed=gas',c:css('--muted')}]));
+  legend('lg_sz',DATA.scen.map((sc,i)=>({t:sc.label,c:cols[sc.key]})).concat([{t:'solid=curtailment, dashed=gas',c:css('--muted')}]));
   // KPIs
   let k='';DATA.scen.forEach(sc=>{const d=DATA.surplus[sc.key];
-    k+=`<div><b>${d.h2_soc_swing_gwh}</b> ${sc.year} H2 swing (GWh)</div>`;
-    k+=`<div><b>${d.h2_in_twh}/${d.h2_out_twh}</b> ${sc.year} H2 in/out (TWh)</div>`;
-    k+=`<div><b>${d.firm_peak_pre_gw}&#8594;${d.firm_peak_post_gw}</b> ${sc.year} firm peak (GW)</div>`;});
+    k+=`<div><b>${d.h2_soc_swing_gwh}</b> ${sc.label} H2 swing (GWh)</div>`;
+    k+=`<div><b>${d.firm_peak_pre_gw}&#8594;${d.firm_peak_post_gw}</b> ${sc.label} firm peak (GW)</div>`;});
   document.getElementById('kpi_lds').innerHTML=k;
 }
 
@@ -345,8 +363,9 @@ def solve(m):
 
 
 def recompute_all():
-    for scn, year in SCEN.items():
-        print(f'=== {scn} ({year}) ===')
+    for scn, meta in SCEN.items():
+        year = meta['year']
+        print(f'=== {scn} ({year} w{meta["wy"]}) ===')
         n = pypsa.Network(fr'{MK}\{scn}_wholesale.nc')
         snaps = n.snapshots
         demand = n.loads_t.p_set.sum(axis=1)
@@ -463,8 +482,10 @@ def compute_ldc(scn):
     gas_cols = [c for c in GAS_CAR if c in gm.columns]
     soc = pd.read_csv(fr'{OUTDIR}\seasonal_storage_{scn}_soc.csv', index_col=0, parse_dates=True)
     swing = float(soc['h2_soc_gwh'].max() - soc['h2_soc_gwh'].min())
+    m = SCEN[scn]
     row = dict(
-        scenario=scn, year=SCEN[scn], demand_twh=round(twh(demand), 2),
+        scenario=scn, year=m['year'], weather_year=m['wy'], label=_label(scn),
+        demand_twh=round(twh(demand), 2),
         total_vre_twh=round(total_vre, 2), served_twh=round(served, 2),
         battery_charge_twh=round(battery_charge, 2), electrolysis_twh=round(electrolysis, 2),
         curtail_twh=round(curtail_twh, 2),
@@ -479,7 +500,7 @@ def compute_ldc(scn):
     pd.DataFrame([row]).to_csv(fr'{OUTDIR}\seasonal_storage_{scn}_surplus.csv', index=False)
     # sanity: surplus split must sum to total available VRE
     split = served + battery_charge + electrolysis + curtail_twh
-    print(f'  {scn} ({SCEN[scn]}): VRE {total_vre:.1f} TWh = served {served:.1f} + battery {battery_charge:.1f} '
+    print(f'  {scn} ({_label(scn)}): VRE {total_vre:.1f} TWh = served {served:.1f} + battery {battery_charge:.1f} '
           f'+ H2 {electrolysis:.1f} + curtailed {curtail_twh:.1f} TWh (split sum {split:.1f}, '
           f'err {abs(split-total_vre):.3f})')
     print(f'    firm peak {row["firm_peak_pre_gw"]:.1f} -> {row["firm_peak_post_gw"]:.1f} GW after storage; '
@@ -496,24 +517,26 @@ def build_report():
     surplus_df = pd.DataFrame([surplus[scn] for scn in SCEN])
 
     # ---- Excel (README first) ----
+    tag = lambda s: _label(s).replace(' ', '_')      # e.g. 2030_w2010 -> safe sheet name
     xlsx = fr'{OUTDIR}\seasonal_storage_analysis.xlsx'
     sheets = {
         'README': pd.DataFrame({
             'sheet': ['Surplus_split', 'SoC_summary'] +
-                     [f'LDC_{SCEN[s]}' for s in SCEN] + [f'Sizing_{SCEN[s]}' for s in SCEN],
+                     [f'LDC_{tag(s)}' for s in SCEN] + [f'Sizing_{tag(s)}' for s in SCEN],
             'contents': [
                 'Per-scenario energy decomposition: available VRE -> served/battery/H2/curtailed (TWh); '
-                'deficit met by battery/H2 turbine/gas/unserved; firm peak pre/post storage; H2 SoC swing',
+                'deficit met by battery/H2 turbine/gas/unserved; firm peak pre/post storage; H2 SoC swing. '
+                'Scenarios are horizon x weather year (2030/2040 x w2010/w2013).',
                 'H2 store seasonal swing (GWh) and throughput (TWh in/out) per scenario'] +
-                [f'Duration curves for {SCEN[s]}: demand, available VRE, net load pre- & post-storage, '
-                 f'each sorted descending over 8760 h (neg net = VRE surplus)' for s in SCEN] +
-                [f'Sizing sweep for {SCEN[s]}: H2 store GWh -> unserved/gas/curtailment TWh' for s in SCEN]}),
+                [f'Duration curves for {_label(s)}: demand, available VRE, net load pre- & post-storage, '
+                 f'each sorted descending over the year (neg net = VRE surplus)' for s in SCEN] +
+                [f'Sizing sweep for {_label(s)}: H2 store GWh -> unserved/gas/curtailment TWh' for s in SCEN]}),
         'Surplus_split': surplus_df,
-        'SoC_summary': surplus_df[['scenario', 'year', 'h2_soc_swing_gwh', 'h2_in_twh', 'h2_out_twh']],
+        'SoC_summary': surplus_df[['scenario', 'year', 'weather_year', 'h2_soc_swing_gwh', 'h2_in_twh', 'h2_out_twh']],
     }
     for scn in SCEN:
-        sheets[f'LDC_{SCEN[scn]}'] = ldcs[scn].reset_index()
-        sheets[f'Sizing_{SCEN[scn]}'] = sizings[scn]
+        sheets[f'LDC_{tag(scn)}'] = ldcs[scn].reset_index()
+        sheets[f'Sizing_{tag(scn)}'] = sizings[scn]
     with pd.ExcelWriter(xlsx, engine='openpyxl') as xw:
         for name, df in sheets.items():
             (df if not df.empty else pd.DataFrame({'note': ['no data']})).to_excel(
@@ -526,8 +549,8 @@ def build_report():
         idx = np.linspace(0, len(a) - 1, min(n, len(a))).round().astype(int)
         return [round(float(x), 1) for x in a[idx]]
 
-    data = {'scen': [{'key': scn, 'year': SCEN[scn]} for scn in SCEN], 'ldc': {}, 'surplus': {},
-            'soc': {}, 'sizing': {}}
+    data = {'scen': [{'key': scn, 'year': SCEN[scn]['year'], 'wy': SCEN[scn]['wy'], 'label': _label(scn)}
+                     for scn in SCEN], 'ldc': {}, 'surplus': {}, 'soc': {}, 'sizing': {}}
     for scn in SCEN:
         L = ldcs[scn]
         data['ldc'][scn] = {'pct': [round(100 * i / (len(L) - 1), 2) for i in
