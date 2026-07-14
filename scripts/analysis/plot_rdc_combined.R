@@ -15,9 +15,6 @@
 #              (Battery / Pumped hydro / LAES / Hydrogen), showing how much each
 #              charges (band above the no-storage curve) and discharges (band
 #              below), with total residual demand and peak demand annotated.
-#
-# Fixes applied: (2) red/green top-row areas are semi-transparent so the grey
-# P10-P90 band shows through; (4) 2030 and 2040 share one y-axis within each row.
 # =============================================================================
 
 suppressPackageStartupMessages({
@@ -31,8 +28,8 @@ NG     <- 400
 
 NAVY <- "#22305f"; DRED <- "#7a1f1f"; DGRN <- "#1f5a2a"
 
-# generation subtracted to form the residual (VRE + must-run firm)
-VRE  <- c("wind_onshore", "wind_offshore", "solar_pv", "marine")
+# generation subtracted to form the residual (VRE = wind + solar; plus must-run firm)
+VRE  <- c("wind_onshore", "wind_offshore", "solar_pv")
 FIRM <- c("nuclear", "biomass", "biogas", "landfill_gas", "sewage_gas",
           "waste_to_energy", "advanced_biofuel", "large_hydro", "geothermal")
 
@@ -60,11 +57,10 @@ proc_top <- function(ty) {
 }
 
 # ============================ BOTTOM ROW (whole-network by tech) =============
-GEN_P <- c(wind = "wind_onshore|wind_offshore|marine|tidal|wave", solar = "solar_pv",
+GEN_P <- c(wind = "wind_onshore|wind_offshore", solar = "solar_pv",
            nuclear = "nuclear",
            firm = "biomass|biogas|landfill_gas|sewage_gas|waste_to_energy|advanced_biofuel|large_hydro|small_hydro|geothermal|oil")
-STO_P <- c(Battery = "Battery", `Pumped hydro` = "Pumped[ _]Storage",
-           LAES = "LAES", CAES = "CAES")
+STO_P <- c(Battery = "Battery", `Pumped hydro` = "Pumped[ _]Storage", LAES = "LAES")
 STO_TECHS <- c("Battery", "Pumped hydro", "LAES", "Hydrogen")   # stack order
 
 classify <- function(cols, patterns) {
@@ -127,15 +123,12 @@ proc_bot <- function(scn) {
   }))
   bands[, tech := factor(tech, levels = techs)]
 
-  after_full <- res - rowSums(N)
   tw <- function(x) sum(x) / 1e3   # GWh summed over hours (values are GW) -> TWh
   perc <- data.table(tech = techs,
     dis = sapply(techs, function(t) tw(pmax(st[[t]], 0))),
     cha = sapply(techs, function(t) tw(-pmin(st[[t]], 0))))
-  list(line = data.table(pct = pct, res = res),
-       bands = bands, perc = perc,
-       st = list(rd = tw(pmax(res, 0)), su = tw(-pmin(res, 0)),
-                 pk = max(res), pkp = max(after_full)))
+  list(line = data.table(pct = pct, res = res), bands = bands, perc = perc,
+       st = list(rd = tw(pmax(res, 0)), su = tw(-pmin(res, 0)), pk = max(res)))
 }
 
 D30t <- proc_top("2030"); D40t <- proc_top("2040")
@@ -152,16 +145,10 @@ STO_COL <- c("Battery" = "#1f77b4", "Pumped hydro" = "#17becf",
 
 base_t <- theme_classic(base_size = 13) +
   theme(plot.title = element_text(face = "bold", size = 14, hjust = 0.5),
-        plot.subtitle = element_text(size = 10.5, hjust = 0.5, colour = "grey20",
-                                     margin = margin(b = 4)),
         axis.title = element_text(size = 13), axis.text = element_text(size = 11.5),
         axis.line = element_line(linewidth = 0.4),
         legend.position = "none")
 xsc <- scale_x_continuous(limits = c(0, 100), expand = c(0, 0))
-
-# Consistent annotation scheme: the headline numbers live in a per-panel
-# SUBTITLE (out of the plot area, so nothing floats over the data); inside the
-# plot only the series are direct-labelled next to the curve/area they mark.
 
 top_panel <- function(D, ttl) {
   cv <- D$cv; st <- D$st
@@ -200,10 +187,10 @@ bot_panel <- function(D, ttl) {
     annotate("point", x = 0.3, y = st$pk, colour = NAVY, size = 1.6) +
     annotate("text", x = 3, y = st$pk, hjust = 0, vjust = 0.3, size = 3.6, fontface = "bold",
              colour = NAVY, label = sprintf("Peak %.0f GW", st$pk)) +
-    # total residual demand, inside the deficit area (below the curve)
-    annotate("text", x = 26, y = 0.13 * yl_bot[2], hjust = 0, size = 3.6, colour = DRED,
+    # total residual demand, in clear space above the deficit part of the curve
+    annotate("text", x = 34, y = 0.42 * yl_bot[2], hjust = 0, size = 3.6, colour = DRED,
              lineheight = 0.9, label = sprintf("Residual demand\n%.1f TWh/yr", st$rd)) +
-    # surplus, inside the surplus region
+    # surplus, in clear space below the shallow mid bands
     annotate("text", x = 40, y = 0.80 * yl_bot[1], hjust = 0, size = 3.6, colour = DGRN,
              lineheight = 0.9, label = sprintf("Surplus %.1f TWh/yr\nabsorbed by storage", st$su)) +
     # storage-tech table (top-right, clear space)
@@ -234,7 +221,7 @@ ggsave(file.path(OUT, "rdc_combined.png"), fig, width = 15, height = 9.5, units 
 message("wrote rdc_combined.pdf / .png")
 cat(sprintf("TOP  2030: rd=%.1f su=%.1f pk=%.1f (n=%d yr)\n", D30t$st$rd, D30t$st$su, D30t$st$pk, D30t$st$nyr))
 cat(sprintf("TOP  2040: rd=%.1f su=%.1f pk=%.1f (n=%d yr)\n", D40t$st$rd, D40t$st$su, D40t$st$pk, D40t$st$nyr))
-cat(sprintf("BOT  2030: rd=%.1f su=%.1f pk=%.1f pkAfter=%.1f\n", D30b$st$rd, D30b$st$su, D30b$st$pk, D30b$st$pkp))
-cat(sprintf("BOT  2040: rd=%.1f su=%.1f pk=%.1f pkAfter=%.1f\n", D40b$st$rd, D40b$st$su, D40b$st$pk, D40b$st$pkp))
+cat(sprintf("BOT  2030: rd=%.1f su=%.1f pk=%.1f\n", D30b$st$rd, D30b$st$su, D30b$st$pk))
+cat(sprintf("BOT  2040: rd=%.1f su=%.1f pk=%.1f\n", D40b$st$rd, D40b$st$su, D40b$st$pk))
 cat("BOT 2030 per-tech (TWh dis/cha):\n"); print(D30b$perc)
 cat("BOT 2040 per-tech (TWh dis/cha):\n"); print(D40b$perc)
