@@ -87,14 +87,20 @@ proc_bot <- function(scn) {
   setnames(disp, 1, "time"); setnames(sto, 1, "time"); setnames(lnk, 1, "time")
 
   g <- per_tech(disp, GEN_P)
+  # links_t.p0 is recorded. electrolysis p0 = electricity consumed (bus0=elec) -
+  # correct as charge. H2_turbine p0 = H2 consumed (bus0=H2), so the electricity
+  # DELIVERED to the grid = p0 x turbine efficiency (0.50). Using p0 directly would
+  # overstate hydrogen discharge 2x and imply a false ~68% round trip (real 35%).
+  H2_TURB_EFF <- 0.50   # matches ELECTROLYSIS 0.70 x TURBINE 0.50 = 35% round-trip
   lcols <- setdiff(names(lnk), "time"); Ml <- as.matrix(lnk[, ..lcols])
-  h2t <- rowSums(Ml[, grepl("^H2_turbine",   lcols), drop = FALSE]) / 1000
-  ele <- rowSums(Ml[, grepl("^electrolysis", lcols), drop = FALSE]) / 1000
-  st  <- per_tech(sto, STO_P); st[, Hydrogen := h2t - ele]        # +discharge / -charge
+  h2in <- rowSums(Ml[, grepl("^H2_turbine",   lcols), drop = FALSE]) / 1000   # H2 consumed
+  ele  <- rowSums(Ml[, grepl("^electrolysis", lcols), drop = FALSE]) / 1000   # electricity in
+  h2e  <- h2in * H2_TURB_EFF                                                  # electricity out
+  st  <- per_tech(sto, STO_P); st[, Hydrogen := h2e - ele]       # electrical +discharge/-charge
 
   gcols <- setdiff(names(disp), "time"); scols <- setdiff(names(sto), "time")
   demand <- rowSums(as.matrix(disp[, ..gcols]), na.rm = TRUE) / 1000 +
-            rowSums(as.matrix(sto[, ..scols]),  na.rm = TRUE) / 1000 + h2t - ele
+            rowSums(as.matrix(sto[, ..scols]),  na.rm = TRUE) / 1000 + h2e - ele
   vre  <- g$wind + g$solar
   firm <- g$nuclear + g$firm
   res  <- demand - vre - firm                                    # residual, no storage

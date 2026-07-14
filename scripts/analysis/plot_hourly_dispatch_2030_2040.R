@@ -89,16 +89,19 @@ read_scenario <- function(year, scn) {
 
   gens <- per_tech(disp, GEN_PATTERNS)               # GW, by generation technology
 
-  # hydrogen-to-power (from links): H2 turbine = discharge, electrolysis = charge
+  # hydrogen-to-power (from links, links_t.p0): electrolysis p0 = electricity in
+  # (charge). H2_turbine p0 = H2 consumed (bus0=H2), so electricity delivered to
+  # the grid = p0 x turbine efficiency 0.50 (else discharge is overstated 2x and
+  # round-trip looks ~68% instead of the real 35% = 0.70 electrolysis x 0.50).
   lcols <- setdiff(names(lnk), "time"); Ml <- as.matrix(lnk[, ..lcols])
-  h2_turbine <- rowSums(Ml[, grepl("^H2_turbine",   lcols), drop = FALSE]) / 1000
+  h2_turbine <- rowSums(Ml[, grepl("^H2_turbine",   lcols), drop = FALSE]) / 1000 * 0.50
   electro    <- rowSums(Ml[, grepl("^electrolysis", lcols), drop = FALSE]) / 1000
 
   stor <- per_tech(sto, STORAGE_PATTERNS)            # GW, +discharge / -charge (signed)
   stor[, Hydrogen := h2_turbine - electro]          # add H2 store as a storage tech
 
-  # demand reconstructed from the energy balance (lossless model):
-  #   demand = all generation + net storage output + (H2 turbine - electrolysis)
+  # demand reconstructed from the energy balance:
+  #   demand = all generation + net storage output + (H2 turbine elec - electrolysis)
   gcols <- setdiff(names(disp), "time"); scols <- setdiff(names(sto), "time")
   allgen  <- rowSums(as.matrix(disp[, ..gcols]), na.rm = TRUE) / 1000
   sto_net <- rowSums(as.matrix(sto[,  ..scols]), na.rm = TRUE) / 1000
