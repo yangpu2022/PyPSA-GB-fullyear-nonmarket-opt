@@ -214,7 +214,7 @@ fig <- (top_panel(D30t, "GB 2030  -  residual demand across weather years") |
 
 cap <- sprintf(paste0(
   "Both rows use the same residual demand = demand - wind - solar - must-run firm (nuclear + biomass group); dispatchable plant, oil peakers and interconnectors are not subtracted. ",
-  "Top: single-node run, mean and P10-P90 across %d weather years (1985-2025) - residual demand is the 41-year mean. ",
+  "Top: single-node run, FES 2025 Holistic Transition, mean and P10-P90 across %d weather years (1985-2025) - residual demand is the 41-year mean. ",
   "Bottom: whole-network full-year optimisation, FES 2025 Holistic Transition, the single weather year 2010; ",
   "bands show each storage technology's hourly charge (above) / discharge (below) along the no-storage duration curve. ",
   "The top mean and the bottom 2010 value differ because one is a 41-year mean (single-node) and the other a single modelled year (whole-network)."),
