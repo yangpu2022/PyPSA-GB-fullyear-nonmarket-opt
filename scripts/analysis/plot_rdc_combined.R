@@ -163,12 +163,13 @@ top_panel <- function(D, ttl) {
     geom_line(aes(y = mean), colour = NAVY, linewidth = 0.8) +
     geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.3) +
     # numbers annotated inside the area they describe
-    annotate("text", x = 6, y = 0.52 * yl_top[2], hjust = 0, size = 4.0, colour = DRED,
+    # residual-demand / surplus labels: same position & format as the bottom row
+    annotate("text", x = 24, y = 0.50 * yl_top[2], hjust = 0, size = 3.8, colour = DRED,
              fontface = "bold", lineheight = 0.9,
-             label = sprintf("Residual demand\nmet by dispatchable\n%.1f TWh/yr (41-yr mean)", st$rd)) +
-    annotate("text", x = 60, y = 0.48 * yl_top[1], hjust = 0, size = 4.0, colour = DGRN,
+             label = sprintf("Residual demand\n%.1f TWh/yr (41-yr mean)", st$rd)) +
+    annotate("text", x = 56, y = 0.45 * yl_top[1], hjust = 0, size = 3.8, colour = DGRN,
              fontface = "bold", lineheight = 0.9,
-             label = sprintf("Residual surplus\nfrom VRE\n%.1f TWh/yr (41-yr mean)", st$su)) +
+             label = sprintf("Residual surplus\n%.1f TWh/yr (41-yr mean)", st$su)) +
     scale_y_continuous(limits = yl_top) + xsc +
     labs(title = ttl, x = "Percentage of hours (%)", y = "Residual demand (GW)") +
     base_t
@@ -191,12 +192,13 @@ bot_panel <- function(D, ttl) {
     annotate("point", x = 0.3, y = st$pk, colour = NAVY, size = 1.6) +
     annotate("text", x = 3, y = st$pk, hjust = 0, vjust = 0.3, size = 3.6, fontface = "bold",
              colour = NAVY, label = sprintf("Peak %.0f GW", st$pk)) +
-    # total residual demand, in clear space above the deficit part of the curve
-    annotate("text", x = 34, y = 0.42 * yl_bot[2], hjust = 0, size = 3.6, colour = DRED,
-             lineheight = 0.9, label = sprintf("Residual demand\n%.1f TWh/yr (weather 2010)", st$rd)) +
-    # surplus, in clear space below the shallow mid bands
-    annotate("text", x = 40, y = 0.80 * yl_bot[1], hjust = 0, size = 3.6, colour = DGRN,
-             lineheight = 0.9, label = sprintf("Surplus %.1f TWh/yr\nabsorbed by storage", st$su)) +
+    # residual-demand / surplus labels: same position & format as the top row
+    annotate("text", x = 24, y = 0.50 * yl_bot[2], hjust = 0, size = 3.8, colour = DRED,
+             fontface = "bold", lineheight = 0.9,
+             label = sprintf("Residual demand\n%.1f TWh/yr (weather 2010)", st$rd)) +
+    annotate("text", x = 56, y = 0.45 * yl_bot[1], hjust = 0, size = 3.8, colour = DGRN,
+             fontface = "bold", lineheight = 0.9,
+             label = sprintf("Residual surplus\n%.1f TWh/yr (weather 2010)", st$su)) +
     # storage-tech table (top-right, clear space)
     annotate("text", x = 60, y = 0.97 * yl_bot[2], hjust = 0, size = 3.5, fontface = "bold",
              label = "Storage  charge / discharge (TWh)") +
