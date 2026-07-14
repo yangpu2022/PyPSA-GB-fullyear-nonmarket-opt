@@ -87,11 +87,13 @@ proc_bot <- function(scn) {
   setnames(disp, 1, "time"); setnames(sto, 1, "time"); setnames(lnk, 1, "time")
 
   g <- per_tech(disp, GEN_P)
-  # links_t.p0 is recorded. electrolysis p0 = electricity consumed (bus0=elec) -
-  # correct as charge. H2_turbine p0 = H2 consumed (bus0=H2), so the electricity
-  # DELIVERED to the grid = p0 x turbine efficiency (0.50). Using p0 directly would
-  # overstate hydrogen discharge 2x and imply a false ~68% round trip (real 35%).
-  H2_TURB_EFF <- 0.50   # matches ELECTROLYSIS 0.70 x TURBINE 0.50 = 35% round-trip
+  # Only links_t.p0 was exported (market_utils.py). electrolysis p0 = electricity
+  # consumed (bus0=elec) - directly the electrical charge (19 TWh, measured).
+  # H2_turbine p0 = H2 consumed (bus0=H2); its electrical OUTPUT p1 was not stored,
+  # but p1 = efficiency x p0 exactly and the turbine efficiency is a verified-
+  # uniform 0.50 across all links in the solved wholesale.nc, so electricity
+  # delivered = 0.50 x p0. (Using p0 directly overstates discharge 2x -> false 68%.)
+  H2_TURB_EFF <- 0.50   # verified uniform in wholesale.nc; x electrolysis 0.70 = 35% RTE
   lcols <- setdiff(names(lnk), "time"); Ml <- as.matrix(lnk[, ..lcols])
   h2in <- rowSums(Ml[, grepl("^H2_turbine",   lcols), drop = FALSE]) / 1000   # H2 consumed
   ele  <- rowSums(Ml[, grepl("^electrolysis", lcols), drop = FALSE]) / 1000   # electricity in
@@ -188,7 +190,7 @@ bot_panel <- function(D, ttl) {
   pc <- pc[match(STO_TECHS, pc$tech, nomatch = 0)]
   ty  <- 0.97 * yl_bot[2] - seq_len(nrow(pc)) * 0.085 * span
   tbl <- data.table(tech = pc$tech, y = ty, col = STO_COL[pc$tech],
-                    lab = sprintf("%s   %.0f / %.0f", pc$tech, pc$cha, pc$dis))
+                    lab = sprintf("%s   %.1f / %.1f", pc$tech, pc$cha, pc$dis))
   ggplot() +
     geom_ribbon(data = bd, aes(pct, ymin = ymin, ymax = ymax, fill = tech)) +
     geom_line(data = ln, aes(pct, res), colour = NAVY, linewidth = 0.8) +
