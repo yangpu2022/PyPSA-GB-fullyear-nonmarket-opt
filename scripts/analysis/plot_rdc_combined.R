@@ -150,81 +150,75 @@ yl_bot <- range(c(D30b$line$res, D40b$line$res, D30b$bands$ymin, D40b$bands$ymin
 STO_COL <- c("Battery" = "#1f77b4", "Pumped hydro" = "#17becf",
              "LAES" = "#9467bd", "Hydrogen" = "#e377c2")
 
-base_t <- theme_classic(base_size = 10.5) +
-  theme(plot.title = element_text(face = "bold", size = 11, hjust = 0.5),
+base_t <- theme_classic(base_size = 13) +
+  theme(plot.title = element_text(face = "bold", size = 14, hjust = 0.5),
+        plot.subtitle = element_text(size = 10.5, hjust = 0.5, colour = "grey20",
+                                     margin = margin(b = 4)),
+        axis.title = element_text(size = 13), axis.text = element_text(size = 11.5),
         axis.line = element_line(linewidth = 0.4),
-        legend.text = element_text(size = 7), legend.key.size = unit(9, "pt"),
-        legend.background = element_rect(fill = alpha("white", 0.6), colour = NA),
-        legend.key = element_rect(fill = NA))
+        legend.position = "none")
 xsc <- scale_x_continuous(limits = c(0, 100), expand = c(0, 0))
 
-# direct-labelling replaces legends throughout (scientific-figure best practice):
-# every series is named next to the curve/area it marks, so the reader never
-# looks away to a legend box.
-no_leg <- theme(legend.position = "none")
+# Consistent annotation scheme: the headline numbers live in a per-panel
+# SUBTITLE (out of the plot area, so nothing floats over the data); inside the
+# plot only the series are direct-labelled next to the curve/area they mark.
 
 top_panel <- function(D, ttl) {
   cv <- D$cv; st <- D$st
-   span <- yl_top[2] - yl_top[1]
+  span <- yl_top[2] - yl_top[1]
+  sub <- sprintf("Residual demand %.1f TWh/yr    ·    residual surplus %.1f TWh/yr",
+                 st$rd, st$su)
   ggplot(cv, aes(pct)) +
     geom_ribbon(aes(ymin = 0, ymax = pmax(mean, 0)), fill = "#d62728", alpha = 0.42) +
     geom_ribbon(aes(ymin = pmin(mean, 0), ymax = 0), fill = "#2ca02c", alpha = 0.42) +
     geom_ribbon(aes(ymin = lo, ymax = hi), fill = alpha("grey45", 0.5)) +
-    geom_line(aes(y = mean), colour = NAVY, linewidth = 0.7) +
+    geom_line(aes(y = mean), colour = NAVY, linewidth = 0.8) +
     geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.3) +
-    # red area (deficit) label, inside the red region
-    annotate("text", x = 6, y = 0.52 * yl_top[2], hjust = 0, size = 2.9, colour = DRED, fontface = "bold",
-             label = sprintf("Residual demand\nmet by dispatchable\n%.1f TWh/yr", st$rd)) +
-    # green area (surplus) label, inside the green region
-    annotate("text", x = 60, y = 0.52 * yl_top[1], hjust = 0, size = 2.9, colour = DGRN, fontface = "bold",
-             label = sprintf("Residual surplus\nfrom VRE\n%.1f TWh/yr", st$su)) +
-    # direct labels for the two ensemble series (in white space above the curve)
-    annotate("text", x = 33, y = 0.46 * yl_top[2], hjust = 0, size = 2.6, colour = NAVY,
+    annotate("text", x = 6, y = 0.55 * yl_top[2], hjust = 0, size = 4.0, colour = DRED,
+             fontface = "bold", lineheight = 0.9,
+             label = "Residual demand\nmet by dispatchable") +
+    annotate("text", x = 60, y = 0.50 * yl_top[1], hjust = 0, size = 4.0, colour = DGRN,
+             fontface = "bold", lineheight = 0.9,
+             label = "Residual surplus\nfrom VRE") +
+    annotate("text", x = 33, y = 0.50 * yl_top[2], hjust = 0, size = 3.6, colour = NAVY,
              label = "Mean of 41 weather years") +
-    annotate("text", x = 33, y = 0.46 * yl_top[2] - 0.11 * span, hjust = 0, size = 2.6, colour = "grey30",
-             label = "P10-P90 band") +
+    annotate("text", x = 33, y = 0.50 * yl_top[2] - 0.10 * span, hjust = 0, size = 3.6,
+             colour = "grey30", label = "P10-P90 band") +
     scale_y_continuous(limits = yl_top) + xsc +
-    labs(title = ttl, x = "Percentage of hours (%)", y = "Residual demand (GW)") +
-    base_t + no_leg
+    labs(title = ttl, subtitle = sub, x = "Percentage of hours (%)", y = "Residual demand (GW)") +
+    base_t
 }
 
 bot_panel <- function(D, ttl) {
   ln <- D$line; bd <- D$bands; st <- D$st; pc <- D$perc
   span <- yl_bot[2] - yl_bot[1]
-  # compact colour-keyed table (top-right): swatch + tech + charge/discharge TWh.
-  # This replaces the verbose legend and carries the numbers at the same time.
+  sub <- sprintf("Peak %.0f GW (%.0f GW after storage)    ·    residual demand %.1f TWh/yr    ·    surplus %.1f TWh/yr absorbed",
+                 st$pk, st$pkp, st$rd, st$su)
+  # compact colour-keyed table (top-right): swatch + tech + charge/discharge TWh,
+  # replacing the legend and carrying the per-tech numbers at the same time.
   pc <- pc[match(STO_TECHS, pc$tech, nomatch = 0)]
-  ty  <- 0.98 * yl_bot[2] - (seq_len(nrow(pc))) * 0.082 * span
+  ty  <- 0.97 * yl_bot[2] - seq_len(nrow(pc)) * 0.085 * span
   tbl <- data.table(tech = pc$tech, y = ty, col = STO_COL[pc$tech],
                     lab = sprintf("%s   %.0f / %.0f", pc$tech, pc$cha, pc$dis))
   ggplot() +
     geom_ribbon(data = bd, aes(pct, ymin = ymin, ymax = ymax, fill = tech)) +
-    geom_line(data = ln, aes(pct, res),   colour = NAVY, linewidth = 0.7) +
-    geom_line(data = ln, aes(pct, after), colour = "#111111", linewidth = 0.6, linetype = "22") +
+    geom_line(data = ln, aes(pct, res),   colour = NAVY, linewidth = 0.8) +
+    geom_line(data = ln, aes(pct, after), colour = "#111111", linewidth = 0.7, linetype = "22") +
     geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.3) +
     scale_fill_manual(values = STO_COL) +
-    # peak, in words, right at the peak
-    annotate("text", x = 3, y = st$pk, hjust = 0, vjust = -0.3, size = 2.7, fontface = "bold",
-             label = sprintf("Peak demand: %.0f GW\n(%.0f GW after storage)", st$pk, st$pkp)) +
-    # total residual demand, in the white space below the deficit curves
-    annotate("text", x = 24, y = 0.09 * yl_bot[2], hjust = 0, size = 2.7, colour = DRED,
-             label = sprintf("Total residual demand\n%.1f TWh/yr", st$rd)) +
-    # residual surplus, in the empty space below the shallow mid bands
-    annotate("text", x = 40, y = 0.86 * yl_bot[1], hjust = 0, size = 2.7, colour = DGRN,
-             label = sprintf("Residual surplus %.1f TWh/yr\n(absorbed by storage charging)", st$su)) +
-    # direct labels for the two curves, in clear space near each
-    annotate("text", x = 62, y = 0.12 * yl_bot[2], hjust = 0, size = 2.5, colour = "#111111",
-             label = "after storage") +
-    annotate("text", x = 84, y = 0.78 * yl_bot[1], hjust = 0, size = 2.5, colour = NAVY,
-             label = "no storage") +
-    # storage-tech table
-    annotate("text", x = 58, y = 0.98 * yl_bot[2], hjust = 0, size = 2.5, fontface = "bold",
+    # storage-tech table (top-right, clear space)
+    annotate("text", x = 60, y = 0.97 * yl_bot[2], hjust = 0, size = 3.5, fontface = "bold",
              label = "Storage  charge / discharge (TWh)") +
-    geom_point(data = tbl, aes(x = 59, y = y), colour = tbl$col, size = 2.2) +
-    geom_text(data = tbl, aes(x = 62, y = y, label = lab), colour = tbl$col, hjust = 0, size = 2.5) +
+    geom_point(data = tbl, aes(x = 62, y = y), colour = tbl$col, size = 3.0) +
+    geom_text(data = tbl, aes(x = 65, y = y, label = lab), colour = tbl$col, hjust = 0, size = 3.6) +
+    # direct labels for the two curves, in clear space near each
+    annotate("text", x = 63, y = 0.16 * yl_bot[2], hjust = 0, size = 3.4, colour = "#111111",
+             label = "after storage") +
+    annotate("text", x = 84, y = 0.72 * yl_bot[1], hjust = 0, size = 3.4, colour = NAVY,
+             label = "no storage") +
     scale_y_continuous(limits = yl_bot) + xsc +
-    labs(title = ttl, x = "Percentage of hours (%)", y = "Residual demand (GW)") +
-    base_t + no_leg
+    labs(title = ttl, subtitle = sub, x = "Percentage of hours (%)", y = "Residual demand (GW)") +
+    base_t
 }
 
 fig <- (top_panel(D30t, "GB 2030  -  residual demand across weather years") |
@@ -240,8 +234,8 @@ cap <- sprintf(paste0(
 fig <- fig + plot_annotation(caption = cap,
              theme = theme(plot.caption = element_text(size = 7.5, hjust = 0)))
 
-ggsave(file.path(OUT, "rdc_combined.pdf"), fig, width = 13, height = 9, units = "in", device = cairo_pdf)
-ggsave(file.path(OUT, "rdc_combined.png"), fig, width = 13, height = 9, units = "in", dpi = 150)
+ggsave(file.path(OUT, "rdc_combined.pdf"), fig, width = 15, height = 9.5, units = "in", device = cairo_pdf)
+ggsave(file.path(OUT, "rdc_combined.png"), fig, width = 15, height = 9.5, units = "in", dpi = 150)
 message("wrote rdc_combined.pdf / .png")
 cat(sprintf("TOP  2030: rd=%.1f su=%.1f pk=%.1f (n=%d yr)\n", D30t$st$rd, D30t$st$su, D30t$st$pk, D30t$st$nyr))
 cat(sprintf("TOP  2040: rd=%.1f su=%.1f pk=%.1f (n=%d yr)\n", D40t$st$rd, D40t$st$su, D40t$st$pk, D40t$st$nyr))
