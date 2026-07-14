@@ -104,35 +104,35 @@ proc_bot <- function(scn) {
   ord <- order(res, decreasing = TRUE)
   res <- res[ord]; N <- N[ord, , drop = FALSE]
 
-  # Bin the residual-sorted hours into percentile bins and average within each
-  # bin: storage dispatch is not monotonic in residual, so per-hour bands would
-  # be noise. Binned means give a readable envelope of typical storage behaviour
-  # at each demand level.
-  NBIN <- 120
-  bin  <- pmin(NBIN, floor(NBIN * (seq_along(res) - 1) / length(res)) + 1)
-  resb <- as.numeric(tapply(res, bin, mean))
-  Nb   <- apply(N, 2, function(col) as.numeric(tapply(col, bin, mean)))
-  Nb   <- matrix(Nb, ncol = length(techs), dimnames = list(NULL, techs))
-  pct  <- as.numeric(tapply(100 * (seq_along(res) - 0.5) / length(res), bin, mean))
-
-  # stack each tech's net off the no-storage curve: discharge (net>0) lowers,
-  # charge (net<0) raises; final level = residual after all storage.
+  # The no-storage residual duration curve is plotted at FULL resolution, so the
+  # value you read at the left edge equals the annotated peak (no binning of the
+  # curve). Only the per-technology storage NET is smoothed (moving mean over the
+  # sorted order) to tame hour-to-hour noise, so the band thickness is readable
+  # while the curve itself stays exact. Each tech's band is stacked off the curve:
+  # discharge (net>0) drops below it, charge (net<0) lifts above it.
+  n   <- length(res)
+  pct <- 100 * (seq_len(n) - 0.5) / n
+  W   <- 300
+  Ns  <- apply(N, 2, function(col) {
+    s <- frollmean(col, W, align = "center")
+    v <- which(!is.na(s))                              # carry edge smoothed value
+    if (length(v)) { s[seq_len(v[1] - 1)] <- s[v[1]]   # outward (no edge spikes)
+                     if (tail(v, 1) < n) s[(tail(v, 1) + 1):n] <- s[tail(v, 1)] }
+    s })
+  Ns  <- matrix(Ns, ncol = length(techs), dimnames = list(NULL, techs))
+  cum <- cbind(0, t(apply(Ns, 1, cumsum)))            # n x (techs+1) cumulative offset
   bands <- rbindlist(lapply(seq_along(techs), function(j) {
-    top <- resb - (if (j == 1) 0 else rowSums(Nb[, seq_len(j - 1), drop = FALSE]))
-    bot <- top - Nb[, j]
-    data.table(pct = pct, tech = techs[j],
-               ymin = pmin(top, bot), ymax = pmax(top, bot))
+    top <- res - cum[, j]; bot <- res - cum[, j + 1]
+    data.table(pct = pct, tech = techs[j], ymin = pmin(top, bot), ymax = pmax(top, bot))
   }))
   bands[, tech := factor(tech, levels = techs)]
-  after <- resb - rowSums(Nb)
 
-  # stats from full-resolution (unbinned) series so TWh totals and peaks are exact
   after_full <- res - rowSums(N)
   tw <- function(x) sum(x) / 1e3   # GWh summed over hours (values are GW) -> TWh
   perc <- data.table(tech = techs,
     dis = sapply(techs, function(t) tw(pmax(st[[t]], 0))),
     cha = sapply(techs, function(t) tw(-pmin(st[[t]], 0))))
-  list(line = data.table(pct = pct, res = resb, after = after),
+  list(line = data.table(pct = pct, res = res),
        bands = bands, perc = perc,
        st = list(rd = tw(pmax(res, 0)), su = tw(-pmin(res, 0)),
                  pk = max(res), pkp = max(after_full)))
@@ -165,59 +165,54 @@ xsc <- scale_x_continuous(limits = c(0, 100), expand = c(0, 0))
 
 top_panel <- function(D, ttl) {
   cv <- D$cv; st <- D$st
-  span <- yl_top[2] - yl_top[1]
-  sub <- sprintf("Residual demand %.1f TWh/yr    ·    residual surplus %.1f TWh/yr",
-                 st$rd, st$su)
   ggplot(cv, aes(pct)) +
     geom_ribbon(aes(ymin = 0, ymax = pmax(mean, 0)), fill = "#d62728", alpha = 0.42) +
     geom_ribbon(aes(ymin = pmin(mean, 0), ymax = 0), fill = "#2ca02c", alpha = 0.42) +
     geom_ribbon(aes(ymin = lo, ymax = hi), fill = alpha("grey45", 0.5)) +
     geom_line(aes(y = mean), colour = NAVY, linewidth = 0.8) +
     geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.3) +
-    annotate("text", x = 6, y = 0.55 * yl_top[2], hjust = 0, size = 4.0, colour = DRED,
+    # numbers annotated inside the area they describe
+    annotate("text", x = 6, y = 0.52 * yl_top[2], hjust = 0, size = 4.0, colour = DRED,
              fontface = "bold", lineheight = 0.9,
-             label = "Residual demand\nmet by dispatchable") +
-    annotate("text", x = 60, y = 0.50 * yl_top[1], hjust = 0, size = 4.0, colour = DGRN,
+             label = sprintf("Residual demand\nmet by dispatchable\n%.1f TWh/yr", st$rd)) +
+    annotate("text", x = 60, y = 0.48 * yl_top[1], hjust = 0, size = 4.0, colour = DGRN,
              fontface = "bold", lineheight = 0.9,
-             label = "Residual surplus\nfrom VRE") +
-    annotate("text", x = 33, y = 0.50 * yl_top[2], hjust = 0, size = 3.6, colour = NAVY,
-             label = "Mean of 41 weather years") +
-    annotate("text", x = 33, y = 0.50 * yl_top[2] - 0.10 * span, hjust = 0, size = 3.6,
-             colour = "grey30", label = "P10-P90 band") +
+             label = sprintf("Residual surplus\nfrom VRE\n%.1f TWh/yr", st$su)) +
     scale_y_continuous(limits = yl_top) + xsc +
-    labs(title = ttl, subtitle = sub, x = "Percentage of hours (%)", y = "Residual demand (GW)") +
+    labs(title = ttl, x = "Percentage of hours (%)", y = "Residual demand (GW)") +
     base_t
 }
 
 bot_panel <- function(D, ttl) {
   ln <- D$line; bd <- D$bands; st <- D$st; pc <- D$perc
   span <- yl_bot[2] - yl_bot[1]
-  sub <- sprintf("Peak %.0f GW (%.0f GW after storage)    ·    residual demand %.1f TWh/yr    ·    surplus %.1f TWh/yr absorbed",
-                 st$pk, st$pkp, st$rd, st$su)
-  # compact colour-keyed table (top-right): swatch + tech + charge/discharge TWh,
-  # replacing the legend and carrying the per-tech numbers at the same time.
+  # compact colour-keyed table (top-right): swatch + tech + charge/discharge TWh.
   pc <- pc[match(STO_TECHS, pc$tech, nomatch = 0)]
   ty  <- 0.97 * yl_bot[2] - seq_len(nrow(pc)) * 0.085 * span
   tbl <- data.table(tech = pc$tech, y = ty, col = STO_COL[pc$tech],
                     lab = sprintf("%s   %.0f / %.0f", pc$tech, pc$cha, pc$dis))
   ggplot() +
     geom_ribbon(data = bd, aes(pct, ymin = ymin, ymax = ymax, fill = tech)) +
-    geom_line(data = ln, aes(pct, res),   colour = NAVY, linewidth = 0.8) +
-    geom_line(data = ln, aes(pct, after), colour = "#111111", linewidth = 0.7, linetype = "22") +
+    geom_line(data = ln, aes(pct, res), colour = NAVY, linewidth = 0.8) +
     geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.3) +
     scale_fill_manual(values = STO_COL) +
+    # peak marker + label, right at the (full-resolution) peak
+    annotate("point", x = 0.3, y = st$pk, colour = NAVY, size = 1.6) +
+    annotate("text", x = 3, y = st$pk, hjust = 0, vjust = 0.3, size = 3.6, fontface = "bold",
+             colour = NAVY, label = sprintf("Peak %.0f GW", st$pk)) +
+    # total residual demand, inside the deficit area (below the curve)
+    annotate("text", x = 26, y = 0.13 * yl_bot[2], hjust = 0, size = 3.6, colour = DRED,
+             lineheight = 0.9, label = sprintf("Residual demand\n%.1f TWh/yr", st$rd)) +
+    # surplus, inside the surplus region
+    annotate("text", x = 40, y = 0.80 * yl_bot[1], hjust = 0, size = 3.6, colour = DGRN,
+             lineheight = 0.9, label = sprintf("Surplus %.1f TWh/yr\nabsorbed by storage", st$su)) +
     # storage-tech table (top-right, clear space)
     annotate("text", x = 60, y = 0.97 * yl_bot[2], hjust = 0, size = 3.5, fontface = "bold",
              label = "Storage  charge / discharge (TWh)") +
     geom_point(data = tbl, aes(x = 62, y = y), colour = tbl$col, size = 3.0) +
     geom_text(data = tbl, aes(x = 65, y = y, label = lab), colour = tbl$col, hjust = 0, size = 3.6) +
-    # direct labels for the two curves, in clear space near each
-    annotate("text", x = 63, y = 0.16 * yl_bot[2], hjust = 0, size = 3.4, colour = "#111111",
-             label = "after storage") +
-    annotate("text", x = 84, y = 0.72 * yl_bot[1], hjust = 0, size = 3.4, colour = NAVY,
-             label = "no storage") +
     scale_y_continuous(limits = yl_bot) + xsc +
-    labs(title = ttl, subtitle = sub, x = "Percentage of hours (%)", y = "Residual demand (GW)") +
+    labs(title = ttl, x = "Percentage of hours (%)", y = "Residual demand (GW)") +
     base_t
 }
 
