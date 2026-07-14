@@ -57,9 +57,13 @@ proc_top <- function(ty) {
 }
 
 # ============================ BOTTOM ROW (whole-network by tech) =============
+# firm regex is kept identical to the top-row FIRM set above, so both rows use
+# the same residual accounting: residual = demand - wind - solar - must-run firm
+# (nuclear + biomass group). Dispatchable plant (gas, oil peakers, interconnectors)
+# is NOT subtracted - it is part of what meets the residual.
 GEN_P <- c(wind = "wind_onshore|wind_offshore", solar = "solar_pv",
            nuclear = "nuclear",
-           firm = "biomass|biogas|landfill_gas|sewage_gas|waste_to_energy|advanced_biofuel|large_hydro|small_hydro|geothermal|oil")
+           firm = "biomass|biogas|landfill_gas|sewage_gas|waste_to_energy|advanced_biofuel|large_hydro|geothermal")
 STO_P <- c(Battery = "Battery", `Pumped hydro` = "Pumped[ _]Storage", LAES = "LAES")
 STO_TECHS <- c("Battery", "Pumped hydro", "LAES", "Hydrogen")   # stack order
 
@@ -161,10 +165,10 @@ top_panel <- function(D, ttl) {
     # numbers annotated inside the area they describe
     annotate("text", x = 6, y = 0.52 * yl_top[2], hjust = 0, size = 4.0, colour = DRED,
              fontface = "bold", lineheight = 0.9,
-             label = sprintf("Residual demand\nmet by dispatchable\n%.1f TWh/yr", st$rd)) +
+             label = sprintf("Residual demand\nmet by dispatchable\n%.1f TWh/yr (41-yr mean)", st$rd)) +
     annotate("text", x = 60, y = 0.48 * yl_top[1], hjust = 0, size = 4.0, colour = DGRN,
              fontface = "bold", lineheight = 0.9,
-             label = sprintf("Residual surplus\nfrom VRE\n%.1f TWh/yr", st$su)) +
+             label = sprintf("Residual surplus\nfrom VRE\n%.1f TWh/yr (41-yr mean)", st$su)) +
     scale_y_continuous(limits = yl_top) + xsc +
     labs(title = ttl, x = "Percentage of hours (%)", y = "Residual demand (GW)") +
     base_t
@@ -189,7 +193,7 @@ bot_panel <- function(D, ttl) {
              colour = NAVY, label = sprintf("Peak %.0f GW", st$pk)) +
     # total residual demand, in clear space above the deficit part of the curve
     annotate("text", x = 34, y = 0.42 * yl_bot[2], hjust = 0, size = 3.6, colour = DRED,
-             lineheight = 0.9, label = sprintf("Residual demand\n%.1f TWh/yr", st$rd)) +
+             lineheight = 0.9, label = sprintf("Residual demand\n%.1f TWh/yr (weather 2010)", st$rd)) +
     # surplus, in clear space below the shallow mid bands
     annotate("text", x = 40, y = 0.80 * yl_bot[1], hjust = 0, size = 3.6, colour = DGRN,
              lineheight = 0.9, label = sprintf("Surplus %.1f TWh/yr\nabsorbed by storage", st$su)) +
@@ -209,9 +213,11 @@ fig <- (top_panel(D30t, "GB 2030  -  residual demand across weather years") |
         bot_panel(D40b, "GB 2040  -  residual demand with storage by technology"))
 
 cap <- sprintf(paste0(
-  "Top: mean and P10-P90 residual demand (demand - VRE - must-run firm) across %d weather years, single-node run. ",
-  "Bottom: whole-network full-year optimisation, FES 2025 Holistic Transition, weather 2010; ",
-  "bands show each storage technology's hourly charge (above) / discharge (below) along the no-storage duration curve."),
+  "Both rows use the same residual demand = demand - wind - solar - must-run firm (nuclear + biomass group); dispatchable plant, oil peakers and interconnectors are not subtracted. ",
+  "Top: single-node run, mean and P10-P90 across %d weather years (1985-2025) - residual demand is the 41-year mean. ",
+  "Bottom: whole-network full-year optimisation, FES 2025 Holistic Transition, the single weather year 2010; ",
+  "bands show each storage technology's hourly charge (above) / discharge (below) along the no-storage duration curve. ",
+  "The top mean and the bottom 2010 value differ because one is a 41-year mean (single-node) and the other a single modelled year (whole-network)."),
   D30t$st$nyr)
 fig <- fig + plot_annotation(caption = cap,
              theme = theme(plot.caption = element_text(size = 7.5, hjust = 0)))
