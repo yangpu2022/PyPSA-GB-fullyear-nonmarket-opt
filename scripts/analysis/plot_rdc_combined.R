@@ -158,59 +158,79 @@ base_t <- theme_classic(base_size = 10.5) +
         legend.key = element_rect(fill = NA))
 xsc <- scale_x_continuous(limits = c(0, 100), expand = c(0, 0))
 
+# direct-labelling replaces legends throughout (scientific-figure best practice):
+# every series is named next to the curve/area it marks, so the reader never
+# looks away to a legend box.
+no_leg <- theme(legend.position = "none")
+
 top_panel <- function(D, ttl) {
   cv <- D$cv; st <- D$st
+   span <- yl_top[2] - yl_top[1]
   ggplot(cv, aes(pct)) +
-    geom_ribbon(aes(ymin = 0, ymax = pmax(mean, 0), fill = "Residual demand (met by dispatchable)"), alpha = 0.45) +
-    geom_ribbon(aes(ymin = pmin(mean, 0), ymax = 0, fill = "Residual surplus (from VRE)"), alpha = 0.45) +
-    geom_ribbon(aes(ymin = lo, ymax = hi, fill = "P10-P90 across weather years")) +
-    geom_line(aes(y = mean, colour = "Mean across weather years"), linewidth = 0.7) +
+    geom_ribbon(aes(ymin = 0, ymax = pmax(mean, 0)), fill = "#d62728", alpha = 0.42) +
+    geom_ribbon(aes(ymin = pmin(mean, 0), ymax = 0), fill = "#2ca02c", alpha = 0.42) +
+    geom_ribbon(aes(ymin = lo, ymax = hi), fill = alpha("grey45", 0.5)) +
+    geom_line(aes(y = mean), colour = NAVY, linewidth = 0.7) +
     geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.3) +
-    annotate("text", x = 5, y = 0.55 * yl_top[2], hjust = 0, size = 2.9, colour = DRED,
-             label = sprintf("Annual residual demand\n%.1f TWh/yr", st$rd)) +
-    annotate("text", x = 58, y = 0.55 * yl_top[1], hjust = 0, size = 2.9, colour = DGRN,
-             label = sprintf("Annual residual surplus\n%.1f TWh/yr", st$su)) +
-    scale_fill_manual(NULL, values = c(
-      "P10-P90 across weather years" = alpha("grey55", 0.5),
-      "Residual demand (met by dispatchable)" = "#d62728",
-      "Residual surplus (from VRE)" = "#2ca02c")) +
-    scale_colour_manual(NULL, values = c("Mean across weather years" = NAVY)) +
-    guides(fill = guide_legend(override.aes = list(alpha = c(0.5, 0.45, 0.45)))) +
+    # red area (deficit) label, inside the red region
+    annotate("text", x = 6, y = 0.52 * yl_top[2], hjust = 0, size = 2.9, colour = DRED, fontface = "bold",
+             label = sprintf("Residual demand\nmet by dispatchable\n%.1f TWh/yr", st$rd)) +
+    # green area (surplus) label, inside the green region
+    annotate("text", x = 60, y = 0.52 * yl_top[1], hjust = 0, size = 2.9, colour = DGRN, fontface = "bold",
+             label = sprintf("Residual surplus\nfrom VRE\n%.1f TWh/yr", st$su)) +
+    # direct labels for the two ensemble series (in white space above the curve)
+    annotate("text", x = 33, y = 0.46 * yl_top[2], hjust = 0, size = 2.6, colour = NAVY,
+             label = "Mean of 41 weather years") +
+    annotate("text", x = 33, y = 0.46 * yl_top[2] - 0.11 * span, hjust = 0, size = 2.6, colour = "grey30",
+             label = "P10-P90 band") +
     scale_y_continuous(limits = yl_top) + xsc +
     labs(title = ttl, x = "Percentage of hours (%)", y = "Residual demand (GW)") +
-    base_t + theme(legend.position = c(0.99, 0.99), legend.justification = c(1, 1))
+    base_t + no_leg
 }
 
 bot_panel <- function(D, ttl) {
   ln <- D$line; bd <- D$bands; st <- D$st; pc <- D$perc
-  leglab <- setNames(sprintf("%s (dis %.1f / cha %.1f TWh)", pc$tech, pc$dis, pc$cha), pc$tech)
-  bd[, techlab := leglab[as.character(tech)]]
-  bd[, techlab := factor(techlab, levels = leglab[levels(bd$tech)])]
+  span <- yl_bot[2] - yl_bot[1]
+  # compact colour-keyed table (top-right): swatch + tech + charge/discharge TWh.
+  # This replaces the verbose legend and carries the numbers at the same time.
+  pc <- pc[match(STO_TECHS, pc$tech, nomatch = 0)]
+  ty  <- 0.98 * yl_bot[2] - (seq_len(nrow(pc))) * 0.082 * span
+  tbl <- data.table(tech = pc$tech, y = ty, col = STO_COL[pc$tech],
+                    lab = sprintf("%s   %.0f / %.0f", pc$tech, pc$cha, pc$dis))
   ggplot() +
-    geom_ribbon(data = bd, aes(pct, ymin = ymin, ymax = ymax, fill = techlab)) +
-    geom_line(data = ln, aes(pct, res,   colour = "Residual demand (no storage)"), linewidth = 0.7) +
-    geom_line(data = ln, aes(pct, after, colour = "Residual demand (after storage)"),
-              linewidth = 0.6, linetype = "22") +
+    geom_ribbon(data = bd, aes(pct, ymin = ymin, ymax = ymax, fill = tech)) +
+    geom_line(data = ln, aes(pct, res),   colour = NAVY, linewidth = 0.7) +
+    geom_line(data = ln, aes(pct, after), colour = "#111111", linewidth = 0.6, linetype = "22") +
     geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.3) +
+    scale_fill_manual(values = STO_COL) +
+    # peak, in words, right at the peak
     annotate("text", x = 3, y = st$pk, hjust = 0, vjust = -0.3, size = 2.7, fontface = "bold",
              label = sprintf("Peak demand: %.0f GW\n(%.0f GW after storage)", st$pk, st$pkp)) +
-    annotate("text", x = 47, y = 0.62 * yl_bot[2], hjust = 0, size = 2.7, colour = DRED,
+    # total residual demand, in the white space below the deficit curves
+    annotate("text", x = 24, y = 0.09 * yl_bot[2], hjust = 0, size = 2.7, colour = DRED,
              label = sprintf("Total residual demand\n%.1f TWh/yr", st$rd)) +
-    annotate("text", x = 52, y = 0.82 * yl_bot[1], hjust = 0, size = 2.7, colour = DGRN,
-             label = sprintf("Residual surplus  %.1f TWh/yr\n(absorbed by storage charging)", st$su)) +
-    scale_fill_manual("Storage charge / discharge", values = setNames(STO_COL[levels(bd$tech)], leglab[levels(bd$tech)])) +
-    scale_colour_manual(NULL, values = c("Residual demand (no storage)" = NAVY,
-                                         "Residual demand (after storage)" = "#111111")) +
+    # residual surplus, in the empty space below the shallow mid bands
+    annotate("text", x = 40, y = 0.86 * yl_bot[1], hjust = 0, size = 2.7, colour = DGRN,
+             label = sprintf("Residual surplus %.1f TWh/yr\n(absorbed by storage charging)", st$su)) +
+    # direct labels for the two curves, in clear space near each
+    annotate("text", x = 62, y = 0.12 * yl_bot[2], hjust = 0, size = 2.5, colour = "#111111",
+             label = "after storage") +
+    annotate("text", x = 84, y = 0.78 * yl_bot[1], hjust = 0, size = 2.5, colour = NAVY,
+             label = "no storage") +
+    # storage-tech table
+    annotate("text", x = 58, y = 0.98 * yl_bot[2], hjust = 0, size = 2.5, fontface = "bold",
+             label = "Storage  charge / discharge (TWh)") +
+    geom_point(data = tbl, aes(x = 59, y = y), colour = tbl$col, size = 2.2) +
+    geom_text(data = tbl, aes(x = 62, y = y, label = lab), colour = tbl$col, hjust = 0, size = 2.5) +
     scale_y_continuous(limits = yl_bot) + xsc +
     labs(title = ttl, x = "Percentage of hours (%)", y = "Residual demand (GW)") +
-    base_t + theme(legend.position = c(0.99, 0.99), legend.justification = c(1, 1),
-                   legend.spacing.y = unit(0, "pt"))
+    base_t + no_leg
 }
 
-fig <- (top_panel(D30t, "GB 2030  -  residual demand across weather years (gap analysis)") |
-        top_panel(D40t, "GB 2040  -  residual demand across weather years (gap analysis)")) /
-       (bot_panel(D30b, "GB 2030  -  residual demand with storage by technology (HT, weather 2010)") |
-        bot_panel(D40b, "GB 2040  -  residual demand with storage by technology (HT, weather 2010)"))
+fig <- (top_panel(D30t, "GB 2030  -  residual demand across weather years") |
+        top_panel(D40t, "GB 2040  -  residual demand across weather years")) /
+       (bot_panel(D30b, "GB 2030  -  residual demand with storage by technology") |
+        bot_panel(D40b, "GB 2040  -  residual demand with storage by technology"))
 
 cap <- sprintf(paste0(
   "Top: mean and P10-P90 residual demand (demand - VRE - must-run firm) across %d weather years, single-node run. ",
