@@ -217,10 +217,34 @@ bot_panel <- function(D, ttl) {
     base_t
 }
 
-fig <- (top_panel(D30t, "GB 2030  -  residual demand across weather years") |
-        top_panel(D40t, "GB 2040  -  residual demand across weather years")) /
-       (bot_panel(D30b, "GB 2030  -  residual demand with storage by technology") |
-        bot_panel(D40b, "GB 2040  -  residual demand with storage by technology"))
+row_top <- top_panel(D30t, "GB 2030  -  residual demand across weather years") |
+           top_panel(D40t, "GB 2040  -  residual demand across weather years")
+row_bot <- bot_panel(D30b, "GB 2030  -  residual demand with storage by technology") |
+           bot_panel(D40b, "GB 2040  -  residual demand with storage by technology")
+fig <- row_top / row_bot
+
+# stand-alone row exports for the policy brief (top row -> residual demand/surplus
+# duration curve; bottom row -> storage contribution by technology)
+cap_top <- sprintf(paste0(
+  "Residual demand = demand - wind - solar - must-run firm (nuclear + biomass group). ",
+  "Single-node run, FES 2025 Holistic Transition; navy line = mean, grey band = P10-P90 across %d weather years (1985-2025)."),
+  D30t$st$nyr)
+cap_bot <- paste0(
+  "Residual demand = demand - wind - solar - must-run firm, weather year 2010, whole-network optimisation, FES 2025 Holistic Transition. ",
+  "Coloured bands = each storage technology's charge (above the curve) and discharge (below); table gives annual charge / discharge (TWh).")
+ggsave(file.path(OUT, "rdc_top_residual_demand.png"),
+       row_top + plot_annotation(caption = cap_top, theme = theme(plot.caption = element_text(size = 8, hjust = 0))),
+       width = 13, height = 5.0, units = "in", dpi = 160)
+ggsave(file.path(OUT, "rdc_top_residual_demand.pdf"),
+       row_top + plot_annotation(caption = cap_top, theme = theme(plot.caption = element_text(size = 8, hjust = 0))),
+       width = 13, height = 5.0, units = "in", device = cairo_pdf)
+ggsave(file.path(OUT, "rdc_bottom_storage_by_tech.png"),
+       row_bot + plot_annotation(caption = cap_bot, theme = theme(plot.caption = element_text(size = 8, hjust = 0))),
+       width = 13, height = 5.2, units = "in", dpi = 160)
+ggsave(file.path(OUT, "rdc_bottom_storage_by_tech.pdf"),
+       row_bot + plot_annotation(caption = cap_bot, theme = theme(plot.caption = element_text(size = 8, hjust = 0))),
+       width = 13, height = 5.2, units = "in", device = cairo_pdf)
+message("wrote rdc_top_residual_demand / rdc_bottom_storage_by_tech")
 
 cap <- sprintf(paste0(
   "Both rows use the same residual demand = demand - wind - solar - must-run firm (nuclear + biomass group); dispatchable plant, oil peakers and interconnectors are not subtracted. ",
