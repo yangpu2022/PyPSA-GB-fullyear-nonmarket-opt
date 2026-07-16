@@ -162,28 +162,31 @@ base_t <- theme_classic(base_size = 13) +
         legend.position = "none")
 xsc <- scale_x_continuous(limits = c(0, 100), expand = c(0, 0))
 
-top_panel <- function(D, ttl) {
+# annot = FALSE strips every in-plot text annotation (the TWh callouts, the peak
+# label and the storage key table), leaving only the curves, bands, axes and title,
+# for a clean version where labels are added externally.
+top_panel <- function(D, ttl, annot = TRUE) {
   cv <- D$cv; st <- D$st
-  ggplot(cv, aes(pct)) +
+  p <- ggplot(cv, aes(pct)) +
     geom_ribbon(aes(ymin = 0, ymax = pmax(mean, 0)), fill = "#d62728", alpha = 0.42) +
     geom_ribbon(aes(ymin = pmin(mean, 0), ymax = 0), fill = "#2ca02c", alpha = 0.42) +
     geom_ribbon(aes(ymin = lo, ymax = hi), fill = alpha("grey45", 0.5)) +
     geom_line(aes(y = mean), colour = NAVY, linewidth = 0.8) +
-    geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.3) +
-    # numbers annotated inside the area they describe
+    geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.3)
+  if (annot) p <- p +
     # residual-demand / surplus labels: same position & format as the bottom row
     annotate("text", x = 24, y = 0.50 * yl_top[2], hjust = 0, size = 3.8, colour = DRED,
              fontface = "bold", lineheight = 0.9,
              label = sprintf("Residual demand\n%.1f TWh/yr (41-yr mean)", st$rd)) +
     annotate("text", x = 56, y = 0.45 * yl_top[1], hjust = 0, size = 3.8, colour = DGRN,
              fontface = "bold", lineheight = 0.9,
-             label = sprintf("Residual surplus\n%.1f TWh/yr (41-yr mean)", st$su)) +
-    scale_y_continuous(limits = yl_top) + xsc +
+             label = sprintf("Residual surplus\n%.1f TWh/yr (41-yr mean)", st$su))
+  p + scale_y_continuous(limits = yl_top) + xsc +
     labs(title = ttl, x = "Percentage of hours (%)", y = "Residual demand (GW)") +
     base_t
 }
 
-bot_panel <- function(D, ttl) {
+bot_panel <- function(D, ttl, annot = TRUE) {
   ln <- D$line; bd <- D$bands; st <- D$st; pc <- D$perc
   span <- yl_bot[2] - yl_bot[1]
   # compact colour-keyed table (top-right): swatch + tech + charge/discharge TWh.
@@ -191,11 +194,12 @@ bot_panel <- function(D, ttl) {
   ty  <- 0.97 * yl_bot[2] - seq_len(nrow(pc)) * 0.085 * span
   tbl <- data.table(tech = pc$tech, y = ty, col = STO_COL[pc$tech],
                     lab = sprintf("%s   %.1f / %.1f", pc$tech, pc$cha, pc$dis))
-  ggplot() +
+  p <- ggplot() +
     geom_ribbon(data = bd, aes(pct, ymin = ymin, ymax = ymax, fill = tech)) +
     geom_line(data = ln, aes(pct, res), colour = NAVY, linewidth = 0.8) +
     geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.3) +
-    scale_fill_manual(values = STO_COL) +
+    scale_fill_manual(values = STO_COL)
+  if (annot) p <- p +
     # peak marker + label, right at the (full-resolution) peak
     annotate("point", x = 0.3, y = st$pk, colour = NAVY, size = 1.6) +
     annotate("text", x = 3, y = st$pk, hjust = 0, vjust = 0.3, size = 3.6, fontface = "bold",
@@ -211,8 +215,8 @@ bot_panel <- function(D, ttl) {
     annotate("text", x = 60, y = 0.97 * yl_bot[2], hjust = 0, size = 3.5, fontface = "bold",
              label = "Storage  charge / discharge (TWh)") +
     geom_point(data = tbl, aes(x = 62, y = y), colour = tbl$col, size = 3.0) +
-    geom_text(data = tbl, aes(x = 65, y = y, label = lab), colour = tbl$col, hjust = 0, size = 3.6) +
-    scale_y_continuous(limits = yl_bot) + xsc +
+    geom_text(data = tbl, aes(x = 65, y = y, label = lab), colour = tbl$col, hjust = 0, size = 3.6)
+  p + scale_y_continuous(limits = yl_bot) + xsc +
     labs(title = ttl, x = "Percentage of hours (%)", y = "Residual demand (GW)") +
     base_t
 }
@@ -259,6 +263,30 @@ fig <- fig + plot_annotation(caption = cap,
 ggsave(file.path(OUT, "rdc_combined.pdf"), fig, width = 15, height = 9.5, units = "in", device = cairo_pdf)
 ggsave(file.path(OUT, "rdc_combined.png"), fig, width = 15, height = 9.5, units = "in", dpi = 150)
 message("wrote rdc_combined.pdf / .png")
+
+# ---- publication versions: (a)-(d) panel tags, no caption row -----------------
+add_tags <- function(pw) (pw +
+  plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")")) &
+  theme(plot.tag = element_text(face = "bold", size = 15),
+        plot.tag.position = c(0.02, 0.98))
+
+fig_tag <- add_tags((top_panel(D30t, "GB 2030  -  residual demand across weather years") |
+                     top_panel(D40t, "GB 2040  -  residual demand across weather years")) /
+                    (bot_panel(D30b, "GB 2030  -  residual demand with storage by technology") |
+                     bot_panel(D40b, "GB 2040  -  residual demand with storage by technology")))
+ggsave(file.path(OUT, "rdc_combined_labelled.pdf"), fig_tag,
+       width = 15, height = 9.2, units = "in", device = cairo_pdf)
+
+# same layout with every in-plot text annotation stripped
+fig_nt <- add_tags((top_panel(D30t, "GB 2030  -  residual demand across weather years", annot = FALSE) |
+                    top_panel(D40t, "GB 2040  -  residual demand across weather years", annot = FALSE)) /
+                   (bot_panel(D30b, "GB 2030  -  residual demand with storage by technology", annot = FALSE) |
+                    bot_panel(D40b, "GB 2040  -  residual demand with storage by technology", annot = FALSE)))
+ggsave(file.path(OUT, "rdc_combined_notext.pdf"), fig_nt,
+       width = 15, height = 9.2, units = "in", device = cairo_pdf)
+ggsave(file.path(OUT, "rdc_combined_notext.png"), fig_nt,
+       width = 15, height = 9.2, units = "in", dpi = 150)
+message("wrote rdc_combined_labelled.pdf and rdc_combined_notext.pdf / .png")
 cat(sprintf("TOP  2030: rd=%.1f su=%.1f pk=%.1f (n=%d yr)\n", D30t$st$rd, D30t$st$su, D30t$st$pk, D30t$st$nyr))
 cat(sprintf("TOP  2040: rd=%.1f su=%.1f pk=%.1f (n=%d yr)\n", D40t$st$rd, D40t$st$su, D40t$st$pk, D40t$st$nyr))
 cat(sprintf("BOT  2030: rd=%.1f su=%.1f pk=%.1f\n", D30b$st$rd, D30b$st$su, D30b$st$pk))
