@@ -277,11 +277,13 @@ fig_tag <- add_tags((top_panel(D30t, "GB 2030  -  residual demand across weather
 ggsave(file.path(OUT, "rdc_combined_labelled.pdf"), fig_tag,
        width = 15, height = 9.2, units = "in", device = cairo_pdf)
 
-# same layout with every in-plot text annotation stripped
-fig_nt <- add_tags((top_panel(D30t, "GB 2030  -  residual demand across weather years", annot = FALSE) |
-                    top_panel(D40t, "GB 2040  -  residual demand across weather years", annot = FALSE)) /
-                   (bot_panel(D30b, "GB 2030  -  residual demand with storage by technology", annot = FALSE) |
-                    bot_panel(D40b, "GB 2040  -  residual demand with storage by technology", annot = FALSE)))
+# fully text-free version: no annotations, no titles, no tags, no axis text
+fig_nt <- ((top_panel(D30t, "", annot = FALSE) | top_panel(D40t, "", annot = FALSE)) /
+           (bot_panel(D30b, "", annot = FALSE) | bot_panel(D40b, "", annot = FALSE))) &
+  theme(plot.title = element_blank(),
+        axis.title.x = element_blank(), axis.title.y = element_blank(),
+        axis.text.x = element_blank(), axis.text.y = element_blank(),
+        axis.ticks = element_blank())
 ggsave(file.path(OUT, "rdc_combined_notext.pdf"), fig_nt,
        width = 15, height = 9.2, units = "in", device = cairo_pdf)
 ggsave(file.path(OUT, "rdc_combined_notext.png"), fig_nt,

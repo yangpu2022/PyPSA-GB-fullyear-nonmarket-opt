@@ -283,14 +283,11 @@ message("wrote dispatch_A4_2030_2040.pdf / .png (A4 portrait)")
 
 # no-text version: strip legend, axis titles/text and facet-strip labels, keeping
 # the stacked-area panels, axes and the (a)-(c) tags for external labelling.
-A4_nt <- (pa / pb / pc) +
-  plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")")
-A4_nt <- A4_nt & theme(legend.position = "none",
+A4_nt <- (pa / pb / pc) & theme(legend.position = "none",
                        axis.title.x = element_blank(), axis.title.y = element_blank(),
                        axis.text.x = element_blank(), axis.text.y = element_blank(),
                        axis.ticks = element_blank(),
-                       strip.text = element_blank(), plot.title = element_blank(),
-                       plot.tag = element_text(face = "bold", size = 13))
+                       strip.text = element_blank(), plot.title = element_blank())
 ggsave(file.path(OUT_DIR, "dispatch_A4_2030_2040_notext.pdf"), A4_nt,
        width = 8.27, height = 8, units = "in", device = cairo_pdf)
 ggsave(file.path(OUT_DIR, "dispatch_A4_2030_2040_notext.png"), A4_nt,
