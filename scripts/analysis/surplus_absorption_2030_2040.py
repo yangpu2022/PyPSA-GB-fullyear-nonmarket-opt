@@ -82,8 +82,15 @@ def vre_carriers(network):
             if any(k in str(c).lower() for k in VRE_KEYS)]
 
 
-def curtailment(network, dispatch):
-    """Available vs dispatched VRE energy, in GWh, overall and per carrier."""
+def curtailment(network, dispatch, demand_GWh):
+    """VRE energy available, generated and curtailed, per carrier and in total.
+
+    "Available" is the weather-driven ceiling (p_max_pu x p_nom); "generated" is
+    what the optimiser actually dispatched. The gap is curtailment. Generated
+    energy is also expressed as a share of total GB demand, which is the sense in
+    which the output is "used": every dispatched MWh serves load, charges storage
+    or leaves via an interconnector, since the model has no other sink.
+    """
     gen = network.generators
     ids = gen.index[gen.carrier.isin(vre_carriers(network))]
     pmax = network.generators_t.p_max_pu.reindex(columns=ids).dropna(axis=1, how="all")
@@ -96,23 +103,73 @@ def curtailment(network, dispatch):
         a += gen.loc[const, "p_nom"].sum() * n_snap if const else 0.0
         return a
 
+    def row_for(label, subset):
+        a = avail_for(subset)
+        d = dispatch[[c for c in dispatch.columns if c in set(subset)]].values.sum()
+        cap = gen.loc[subset, "p_nom"].sum()
+        return {"carrier": label, "capacity_GW": cap / 1e3,
+                "available_GWh": a / 1e3, "generated_GWh": d / 1e3,
+                "curtailed_GWh": (a - d) / 1e3,
+                "curtailed_pct": 100 * (a - d) / a if a else np.nan,
+                "capacity_factor_pct": 100 * d / (cap * n_snap) if cap else np.nan,
+                "share_of_demand_pct": 100 * (d / 1e3) / demand_GWh if demand_GWh else np.nan}
+
     rows = []
     for carrier in sorted(gen.loc[ids, "carrier"].unique()):
         sub = gen.index[gen.carrier == carrier]
-        a = avail_for(sub)
-        if a <= 0:
+        if avail_for(sub) <= 0:
             continue
-        d = dispatch[[c for c in dispatch.columns if c in set(sub)]].values.sum()
-        rows.append({"carrier": carrier, "available_GWh": a / 1e3,
-                     "dispatched_GWh": d / 1e3, "curtailed_GWh": (a - d) / 1e3,
-                     "curtailed_pct": 100 * (a - d) / a})
-    total_a = avail_for(ids)
-    total_d = dispatch[[c for c in dispatch.columns if c in set(ids)]].values.sum()
-    rows.append({"carrier": "TOTAL VRE", "available_GWh": total_a / 1e3,
-                 "dispatched_GWh": total_d / 1e3,
-                 "curtailed_GWh": (total_a - total_d) / 1e3,
-                 "curtailed_pct": 100 * (total_a - total_d) / total_a})
+        rows.append(row_for(carrier, sub))
+    rows.append(row_for("TOTAL VRE", ids))
     return pd.DataFrame(rows)
+
+
+def energy_balance(network, dispatch, storage, links, demand_GWh):
+    """GB energy balance: where generated energy goes.
+
+    Generators sitting on the HVDC_External_* buses carry the EU_import carrier
+    and represent foreign supply, not GB generation. They must be excluded from
+    GB output and counted instead as interconnector imports, otherwise the
+    balance overstates GB generation by the import volume. Interconnector p0 is
+    measured at bus0 (the GB end), so p0 < 0 is an inflow to GB; the delivered
+    energy applies the DC link efficiency.
+    """
+    gen = network.generators
+    ext_buses = set(network.buses.index[
+        network.buses.index.str.contains("External", case=False)])
+    gb = [c for c in dispatch.columns
+          if c in gen.index and gen.at[c, "bus"] not in ext_buses]
+    vre_ids = set(gen.index[gen.carrier.isin(vre_carriers(network))])
+    vre = dispatch[[c for c in gb if c in vre_ids]].values.sum() / 1e3
+    other = dispatch[[c for c in gb if c not in vre_ids]].values.sum() / 1e3
+
+    su_cols = [c for c in storage.columns if c in network.storage_units.index]
+    net_sto = storage[su_cols].sum(axis=1)
+    sto_charge = -net_sto.clip(upper=0).sum() / 1e3
+    sto_discharge = net_sto.clip(lower=0).sum() / 1e3
+
+    ely = [c for c in links.columns if c.startswith("electrolysis")]
+    h2t = [c for c in links.columns if c.startswith("H2_turbine")]
+    h2_in = links[ely].values.sum() / 1e3
+    h2_out = links[h2t].values.sum() * H2_TURBINE_EFF / 1e3
+
+    ic = [c for c in links.columns if c.startswith("IC_")]
+    dc_eff = float(network.links.loc[ic, "efficiency"].mean()) if ic else 1.0
+    imports = -links[ic].values.sum() / 1e3 * dc_eff if ic else 0.0
+
+    charge = sto_charge + h2_in
+    discharge = sto_discharge + h2_out
+    residual = vre + other + imports + discharge - charge - demand_GWh
+    return pd.DataFrame([
+        {"item": "GB demand", "GWh": demand_GWh},
+        {"item": "GB VRE generated", "GWh": vre},
+        {"item": "GB non-VRE generated", "GWh": other},
+        {"item": "Net interconnector imports", "GWh": imports},
+        {"item": "Storage discharge", "GWh": discharge},
+        {"item": "Storage charge", "GWh": -charge},
+        {"item": "Storage round-trip loss", "GWh": -(charge - discharge)},
+        {"item": "Residual (AC network losses)", "GWh": residual},
+    ])
 
 
 def storage_flows(network, storage, links):
@@ -243,12 +300,15 @@ def build():
 
         cap_df, meta = storage_capacity(n)
         meta.update(electrolysis_utilisation(n, lnk))
+        demand_GWh = n.loads_t.p_set.values.sum() / 1e3
+        meta["demand_GWh"] = demand_GWh
         caps_meta[year] = meta
         results[year] = {
             "scenario": scn,
             "snapshots": len(n.snapshots),
             "h2_loads": int((n.loads.bus == "GB_H2").sum()),
-            "curtailment": curtailment(n, disp),
+            "curtailment": curtailment(n, disp, demand_GWh),
+            "balance": energy_balance(n, disp, sto, lnk, demand_GWh),
             "flows": storage_flows(n, sto, lnk),
             "capacity": cap_df,
             "extendability": extendability(n),
@@ -266,7 +326,8 @@ def write_excel(res, path):
         ("Generated", datetime.now().strftime("%Y-%m-%d %H:%M")),
         ("Scenarios", ", ".join(SCENARIOS.values()) + " (wholesale stage)"),
         ("Basis", "Same scenarios and fleet-net convention as plot_rdc_combined.R"),
-        ("Sheet Curtailment_YYYY", "VRE available (p_max_pu x p_nom) vs dispatched, by carrier"),
+        ("Sheet VRE_YYYY", "VRE capacity, available, generated, curtailed, CF, share of demand"),
+        ("Sheet Balance_YYYY", "Where generated energy goes: demand, storage losses, net exchange"),
         ("Sheet Flows_YYYY", "Storage charge/discharge per technology, fleet net per hour"),
         ("Sheet Capacity_YYYY", "Power and energy capacity per technology incl. H2 store"),
         ("Sheet Extendability_YYYY", "Count of extendable components (all zero = dispatch only)"),
@@ -280,7 +341,8 @@ def write_excel(res, path):
         readme.to_excel(xl, sheet_name="README", index=False)
         for year in SCENARIOS:
             r = res[year]
-            r["curtailment"].to_excel(xl, sheet_name=f"Curtailment_{year}", index=False)
+            r["curtailment"].to_excel(xl, sheet_name=f"VRE_{year}", index=False)
+            r["balance"].to_excel(xl, sheet_name=f"Balance_{year}", index=False)
             r["flows"].to_excel(xl, sheet_name=f"Flows_{year}", index=False)
             r["capacity"].to_excel(xl, sheet_name=f"Capacity_{year}", index=False)
             r["extendability"].to_excel(xl, sheet_name=f"Extendability_{year}", index=False)
@@ -327,9 +389,12 @@ function tbl(rows,cols,hdr){
 }
 function yearView(y){
   const d=DATA.years[y];if(!d)return"<p>no data</p>";const m=d.meta;
-  return "<h2>Curtailment</h2><p class='note'>Available VRE energy versus dispatched, scenario "+d.scenario+".</p>"
-  +tbl(d.curtailment,["carrier","available_GWh","dispatched_GWh","curtailed_GWh","curtailed_pct"],
-       ["Carrier","Available GWh","Dispatched GWh","Curtailed GWh","Curtailed %"])
+  return "<h2>VRE generated and curtailed</h2><p class='note'>Scenario "+d.scenario
+  +". Demand "+F(m.demand_GWh,0)+" GWh.</p>"
+  +tbl(d.curtailment,["carrier","capacity_GW","available_GWh","generated_GWh","curtailed_GWh","curtailed_pct","capacity_factor_pct","share_of_demand_pct"],
+       ["Carrier","Capacity GW","Available GWh","Generated GWh","Curtailed GWh","Curtailed %","Capacity factor %","Share of demand %"])
+  +"<h2>Energy balance</h2><p class='note'>Negative entries are sinks.</p>"
+  +tbl(d.balance,["item","GWh"],["Item","GWh"])
   +"<h2>Storage flows</h2><p class='note'>Fleet net per hour, matching the table drawn on rdc_combined.</p>"
   +tbl(d.flows,["technology","charge_GWh","discharge_GWh","share_of_charging_pct","round_trip_pct"],
        ["Technology","Charge GWh","Discharge GWh","Share of charging %","Round trip %"])
@@ -382,7 +447,8 @@ def write_html(res, path):
         r = res[year]
         payload["years"][str(year)] = {
             "scenario": r["scenario"],
-            "curtailment": r["curtailment"].round(2).to_dict("records"),
+            "curtailment": r["curtailment"].round(2).replace({np.nan: None}).to_dict("records"),
+            "balance": r["balance"].round(2).to_dict("records"),
             "flows": r["flows"].round(2).replace({np.nan: None}).to_dict("records"),
             "capacity": r["capacity"].round(2).to_dict("records"),
             "extendability": r["extendability"].to_dict("records"),
