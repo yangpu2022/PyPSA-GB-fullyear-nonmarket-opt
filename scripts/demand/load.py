@@ -2651,6 +2651,211 @@ def _load_espeni_national_hourly(year: int, logger) -> pd.Series:
     return hourly
 
 
+GSP_REGION_GEOJSON = Path("data/network/GSP/GSP_regions_4326_20250109.geojson")
+
+
+def _build_gsp_regional_temperatures(cutout, demand_names, fes_year, logger):
+    """Area-mean 2m temperature (Celsius, hourly) for each demand GSP.
+
+    Each FES GSP name is mapped to its GSP ID (via the FES metadata that
+    distribute_future_fes_demand_to_etys_nodes already uses) and then to its
+    region polygon in the GSP_regions geojson. The cutout temperature is
+    averaged over the grid cells whose centres fall inside that polygon; a GSP
+    smaller than one grid cell uses the single nearest cell.
+
+    Returns ``(temps, (n_matched, n_total))`` where ``temps`` is
+    ``{canonical_gsp_name: pd.Series(temp_C, index=cutout time)}``. Names that
+    cannot be mapped are simply absent, and the caller falls back to the
+    national shape for them, so this never changes which GSPs exist or their
+    annual energy.
+    """
+    n_total = len(demand_names)
+    if not GSP_REGION_GEOJSON.exists():
+        logger.warning(
+            f"GSP region geojson not found at {GSP_REGION_GEOJSON}; "
+            "all GSPs will use the national weather shape"
+        )
+        return {}, (0, n_total)
+
+    # 1. GSP name -> GSP ID from the FES metadata (same file used for ETYS node
+    #    distribution), matched through canonical_gsp_name for robustness.
+    meta_path = resolve_gsp_metadata_path(int(fes_year), logger)
+    if not (meta_path and Path(meta_path).exists()):
+        logger.warning("No FES GSP metadata found; cannot map GSP names to regions")
+        return {}, (0, n_total)
+    meta = pd.read_csv(meta_path)
+    name_to_id = {}
+    for _, row in meta.iterrows():
+        nm = canonical_gsp_name(row.get("Name", ""))
+        gid = str(row.get("GSP ID", "")).strip()
+        if nm and gid:
+            name_to_id.setdefault(nm, gid)
+
+    needed_ids = {
+        name_to_id[canonical_gsp_name(n)]
+        for n in demand_names
+        if canonical_gsp_name(n) in name_to_id
+    }
+    if not needed_ids:
+        logger.warning("No demand GSP names matched the FES metadata; using national shape")
+        return {}, (0, n_total)
+
+    # 2. GSP ID -> region polygon. The geojson's "GSPs" field is a pipe-delimited
+    #    list of the GSP IDs that share that region (e.g. "BEAU_P|ORRI_P"), so
+    #    explode it to one row per member ID before matching.
+    raw_gdf = gpd.read_file(GSP_REGION_GEOJSON)
+    if raw_gdf.crs is None:
+        raw_gdf = raw_gdf.set_crs("EPSG:4326")
+    elif str(raw_gdf.crs).upper() != "EPSG:4326":
+        raw_gdf = raw_gdf.to_crs("EPSG:4326")
+    member_rows = []
+    for _, row in raw_gdf.iterrows():
+        for gid in str(row["GSPs"]).split("|"):
+            gid = gid.strip()
+            if gid:
+                member_rows.append({"GSP_ID": gid, "geometry": row.geometry})
+    gsp_gdf = gpd.GeoDataFrame(member_rows, crs="EPSG:4326")
+    gsp_gdf = gsp_gdf[gsp_gdf["GSP_ID"].isin(needed_ids)]
+    if gsp_gdf.empty:
+        logger.warning("No region polygons for the needed GSP IDs; using national shape")
+        return {}, (0, n_total)
+    # One geometry per GSP ID (union if an ID appears in more than one feature).
+    gsp_gdf = gsp_gdf.dissolve(by="GSP_ID", as_index=False)
+
+    # 3. Assign each cutout grid-cell centre to the polygon that contains it.
+    xs = cutout.data.x.values  # longitude
+    ys = cutout.data.y.values  # latitude
+    ix_grid, iy_grid = np.meshgrid(np.arange(xs.size), np.arange(ys.size))
+    lon_grid, lat_grid = np.meshgrid(xs, ys)
+    cells = gpd.GeoDataFrame(
+        {"iy": iy_grid.ravel(), "ix": ix_grid.ravel()},
+        geometry=gpd.points_from_xy(lon_grid.ravel(), lat_grid.ravel()),
+        crs="EPSG:4326",
+    )
+    joined = gpd.sjoin(cells, gsp_gdf, predicate="within", how="inner")
+    id_cells = {
+        gid: (grp["iy"].to_numpy(), grp["ix"].to_numpy())
+        for gid, grp in joined.groupby("GSP_ID")
+    }
+
+    # Nearest-cell fallback for GSPs smaller than one grid cell.
+    flat_lon, flat_lat = lon_grid.ravel(), lat_grid.ravel()
+    flat_iy, flat_ix = iy_grid.ravel(), ix_grid.ravel()
+    n_fallback = 0
+    for _, row in gsp_gdf.iterrows():
+        gid = row["GSP_ID"]
+        if gid in id_cells:
+            continue
+        rp = row.geometry.representative_point()
+        k = int(np.argmin((flat_lon - rp.x) ** 2 + (flat_lat - rp.y) ** 2))
+        id_cells[gid] = (np.array([flat_iy[k]]), np.array([flat_ix[k]]))
+        n_fallback += 1
+
+    # 4. Area-mean temperature (Celsius) per GSP over the whole weather year.
+    temp = cutout.data["temperature"]
+    temp_arr = np.asarray(temp.values, dtype="float32")  # (time, y, x)
+    if np.nanmean(temp_arr) > 200.0:  # Kelvin -> Celsius
+        temp_arr = temp_arr - 273.15
+    time_index = _to_naive_index(pd.DatetimeIndex(temp.get_index("time")))
+    id_to_series = {
+        gid: pd.Series(temp_arr[:, iy, ix].mean(axis=1), index=time_index)
+        for gid, (iy, ix) in id_cells.items()
+    }
+
+    temps = {}
+    for name in demand_names:
+        cn = canonical_gsp_name(name)
+        gid = name_to_id.get(cn)
+        if gid is not None and gid in id_to_series:
+            temps[cn] = id_to_series[gid]
+
+    logger.info(
+        f"Regional temperature: mapped {len(temps)}/{n_total} GSPs to region "
+        f"polygons ({n_fallback} via nearest-cell fallback)"
+    )
+    return temps, (len(temps), n_total)
+
+
+def _scale_regional_profiles_to_fes_demand(
+    demand_data, regional_temps, national_shape, params, base_shape, case,
+    modelled_year, logger,
+):
+    """Per-GSP hourly demand (MW) on the modelled year's index.
+
+    The temporal SHAPE for each GSP comes from the gap weather-demand model
+    evaluated on that GSP's regional temperature (or the national shape where no
+    region is available); the LEVEL is the GSP's FES ED1 annual energy. This is
+    the per-GSP equivalent of _scale_hourly_profile_to_fes_demand, so per-GSP
+    totals and the downstream bus mapping are unchanged -- only the shape differs
+    by region. A GSP left on the national shape is bit-for-bit identical to the
+    national-shape version.
+    """
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts/ on path
+    from gap.demand_weather_model import project_demand
+
+    time_index = pd.date_range(
+        f"{modelled_year}-01-01 00:00:00", f"{modelled_year}-12-31 23:00:00", freq="h"
+    )
+
+    # Map modelled (day-of-year, hour) -> first matching position in the
+    # weather-year source index (mirrors _scale_hourly_profile_to_fes_demand's
+    # day/hour remap, incl. the leap-year fallback).
+    src_index = pd.DatetimeIndex(national_shape.index)
+    pos_by_key = {}
+    for p, (doy, hr) in enumerate(zip(src_index.dayofyear, src_index.hour)):
+        pos_by_key.setdefault((int(doy), int(hr)), p)
+    pos_map = np.empty(len(time_index), dtype=int)
+    for i, (doy, hr) in enumerate(zip(time_index.dayofyear, time_index.hour)):
+        p = pos_by_key.get((int(doy), int(hr)))
+        if p is None:
+            p = pos_by_key.get((min(int(doy), 365), int(hr)))
+        if p is None:
+            p = pos_by_key.get((int(doy), 0), 0)
+        pos_map[i] = p
+
+    national_mapped = np.asarray(national_shape.values, dtype=float)[pos_map]
+    heat_mult = case["heat_mult"]
+    regional_cache = {}
+
+    timeseries = {}
+    n_regional = 0
+    for gsp_name in demand_data.index:
+        annual_gwh = float(demand_data.loc[gsp_name].iloc[0])
+        cn = canonical_gsp_name(gsp_name)
+        temp_g = regional_temps.get(cn)
+        if temp_g is not None:
+            if cn not in regional_cache:
+                # project_demand renormalises to a fixed sum; the constant
+                # cancels when we renormalise over the modelled index below, so
+                # this is purely the regional SHAPE.
+                shape_wy = project_demand(
+                    temp_g, params, base_shape, annual_total_gwh=1.0,
+                    heat_mult=heat_mult, total_mult=1.0,
+                )
+                regional_cache[cn] = np.asarray(shape_wy.values, dtype=float)[pos_map]
+            mapped = regional_cache[cn]
+            n_regional += 1
+        else:
+            mapped = national_mapped
+
+        total = mapped.sum()
+        if annual_gwh <= 0 or total <= 0:
+            timeseries[gsp_name] = pd.Series(0.0, index=time_index)
+        else:
+            timeseries[gsp_name] = pd.Series(
+                mapped * (annual_gwh * 1000.0 / total), index=time_index
+            )
+
+    p_set = pd.DataFrame(timeseries, index=time_index)
+    total_twh = p_set.to_numpy().sum() / 1e6
+    logger.info(
+        f"gap regional profiles: {p_set.shape[1]} GSPs "
+        f"({n_regional} regional shape, {p_set.shape[1] - n_regional} national shape), "
+        f"{len(time_index)} timesteps, {total_twh:.3f} TWh total"
+    )
+    return p_set
+
+
 def generate_gap_profiles(demand_data: pd.DataFrame, modelled_year: int, logger) -> pd.DataFrame:
     """Generate the demand temporal shape from the gap weather-demand model.
 
@@ -2658,10 +2863,14 @@ def generate_gap_profiles(demand_data: pd.DataFrame, modelled_year: int, logger)
     renewable profiles): a temperature response is fitted on a historical base
     year (ESPENI demand vs degree-days) and then re-evaluated against the
     weather year's temperature, with the electrified-heating slope scaled up for
-    the future (electrification case). The resulting national hourly series is
-    used purely as a SHAPE here — the annual level per GSP still comes from the
-    FES ED1 totals via _scale_hourly_profile_to_fes_demand — so cold weather
-    years raise winter/peak demand without double-counting the FES level.
+    the future (electrification case). The response is re-evaluated per GSP on
+    that region's own temperature (region-masked from the cutout), so each GSP
+    gets its own SHAPE — a cold snap raises demand where it is cold, the
+    locational coincidence that matters under network constraints. The annual
+    level per GSP still comes from the FES ED1 totals (via
+    _scale_regional_profiles_to_fes_demand), so cold weather years raise
+    winter/peak demand without double-counting the FES level. GSPs that cannot
+    be mapped to a region fall back to the national shape.
 
     Reads from the global snakemake object (set by the Snakemake script shim):
       params.renewables_year   - weather year (drives the cutout used)
@@ -2705,7 +2914,9 @@ def generate_gap_profiles(demand_data: pd.DataFrame, modelled_year: int, logger)
                 f"heat_slope={params['heat_slope']:.1f}, cool_slope={params['cool_slope']:.1f}")
 
     # 2. Project the national hourly shape onto the weather year's temperature.
-    weather_temp = national_temperature(atlite.Cutout(path=cutout_weather_path))
+    #    (Kept as the fallback shape for any GSP we cannot map to a region.)
+    cutout_weather = atlite.Cutout(path=cutout_weather_path)
+    weather_temp = national_temperature(cutout_weather)
     weather_temp.index = _to_naive_index(weather_temp.index)
     c = ELECTRIFICATION_CASES[gap_case]
     # annual_total_gwh/total_mult cancel under normalisation in the scaler below,
@@ -2716,10 +2927,33 @@ def generate_gap_profiles(demand_data: pd.DataFrame, modelled_year: int, logger)
     logger.info(f"  Projected national shape: {len(national_shape)} hourly steps, "
                 f"peak/mean ratio {national_shape.max()/national_shape.mean():.2f}")
 
-    # 3. Distribute across GSPs and scale to the FES annual level (same machinery
-    #    the eLOAD/DESSTINEE paths use).
-    return _scale_hourly_profile_to_fes_demand(
-        national_shape, demand_data, modelled_year, "gap (weather-demand model)", logger
+    # 3. Build a REGIONAL hourly shape per GSP: each region's demand follows its
+    #    own local temperature (region-masked from the same cutout), so a cold
+    #    snap in one area raises that area's demand specifically — the locational
+    #    coincidence that matters under network constraints. GSPs that cannot be
+    #    mapped to a region fall back to the national shape. Every GSP is then
+    #    scaled to its FES ED1 annual level, so per-GSP totals and the downstream
+    #    bus mapping are identical to the national-shape version; only the
+    #    temporal shape becomes regional.
+    fes_year = get_param_value(getattr(snakemake.params, 'fes_year', None))
+    regional_temps = {}
+    if fes_year is not None:
+        try:
+            regional_temps, (n_match, n_tot) = _build_gsp_regional_temperatures(
+                cutout_weather, list(demand_data.index), fes_year, logger
+            )
+        except Exception as exc:  # never let the spatial step break the solve
+            logger.warning(
+                f"Regional temperature build failed ({exc}); "
+                "falling back to the national shape for all GSPs"
+            )
+            regional_temps = {}
+    else:
+        logger.warning("No fes_year param available; using national shape for all GSPs")
+
+    return _scale_regional_profiles_to_fes_demand(
+        demand_data, regional_temps, national_shape, params, shape, c,
+        modelled_year, logger,
     )
 
 
