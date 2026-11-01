@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import logging
 import re
+import sys
 from pathlib import Path
 from typing import Dict, Callable, Optional
 from collections.abc import Sequence
@@ -2458,8 +2459,10 @@ def generate_load_timeseries(demand_data: pd.DataFrame, dataset_name: str, model
         return generate_desstinee_profiles_from_excel(demand_data, modelled_year, logger, profile_year)
     elif dataset_name_lower == "espeni":
         return generate_espeni_profiles(demand_data, modelled_year, logger, demand_year, embedded_generation_config, scenario_name)
+    elif dataset_name_lower == "gap":
+        return generate_gap_profiles(demand_data, modelled_year, logger)
     else:
-        raise ValueError(f"Unknown dataset: {dataset_name}. Supported: ESPENI, eload, desstinee")
+        raise ValueError(f"Unknown dataset: {dataset_name}. Supported: ESPENI, eload, desstinee, gap")
 
 
 def _load_egy_profile(sheet_name: str, model_name: str, logger, profile_year: int = 2010) -> pd.Series:
@@ -2603,6 +2606,121 @@ def _scale_hourly_profile_to_fes_demand(
     logger.info(f"  Total annual energy: {total_twh:.3f} TWh")
 
     return p_set_data
+
+
+def _to_naive_index(index) -> pd.DatetimeIndex:
+    """Return a tz-naive DatetimeIndex (strips tz if present; no-op if already naive)."""
+    idx = pd.DatetimeIndex(index)
+    return idx.tz_localize(None) if idx.tz is not None else idx
+
+
+def _load_espeni_national_hourly(year: int, logger) -> pd.Series:
+    """Load the national ESPENI demand series (MW) for one calendar year, hourly.
+
+    Reuses the same flexible column detection as generate_espeni_profiles so it
+    works with both the old and new ESPENI CSV layouts.
+    """
+    espeni_file = snakemake.input.espeni
+    columns = list(pd.read_csv(espeni_file, nrows=1).columns)
+
+    if 'ELEXM_utc' in columns and 'POWER_ESPENI_MW' in columns:
+        date_col, demand_column = 'ELEXM_utc', 'POWER_ESPENI_MW'
+    elif ('ELEC_elex_startTime[utc](datetime)' in columns
+          and 'ELEC_POWER_TOTAL_ESPENI[MW](float32)' in columns):
+        date_col = 'ELEC_elex_startTime[utc](datetime)'
+        demand_column = 'ELEC_POWER_TOTAL_ESPENI[MW](float32)'
+    else:
+        date_candidates = [c for c in columns if 'time' in c.lower() or 'date' in c.lower()]
+        espeni_candidates = [c for c in columns if 'espeni' in c.lower() and 'mw' in c.lower()]
+        if not (date_candidates and espeni_candidates):
+            raise ValueError(f"Could not identify ESPENI date/demand columns. Available: {columns}")
+        date_col, demand_column = date_candidates[0], espeni_candidates[0]
+
+    espeni = pd.read_csv(espeni_file, parse_dates=[date_col], index_col=date_col)
+    series = espeni[demand_column].dropna()
+    series.index = _to_naive_index(series.index)
+    year_series = series[series.index.year == int(year)]
+    if year_series.empty:
+        raise ValueError(
+            f"No ESPENI demand found for base-fit year {year}. "
+            f"Available years: {sorted(set(series.index.year))}"
+        )
+    hourly = year_series.resample('h').mean().interpolate()
+    logger.info(f"Loaded ESPENI national demand for base-fit year {year}: "
+                f"{len(hourly)} hourly steps, mean {hourly.mean():.0f} MW")
+    return hourly
+
+
+def generate_gap_profiles(demand_data: pd.DataFrame, modelled_year: int, logger) -> pd.DataFrame:
+    """Generate the demand temporal shape from the gap weather-demand model.
+
+    The gap layer ties demand to the *weather year* (the same year used for
+    renewable profiles): a temperature response is fitted on a historical base
+    year (ESPENI demand vs degree-days) and then re-evaluated against the
+    weather year's temperature, with the electrified-heating slope scaled up for
+    the future (electrification case). The resulting national hourly series is
+    used purely as a SHAPE here — the annual level per GSP still comes from the
+    FES ED1 totals via _scale_hourly_profile_to_fes_demand — so cold weather
+    years raise winter/peak demand without double-counting the FES level.
+
+    Reads from the global snakemake object (set by the Snakemake script shim):
+      params.renewables_year   - weather year (drives the cutout used)
+      params.gap_case          - electrification case: low | central | high
+      params.gap_base_fit_year - historical year for the temperature fit (2019)
+      input.cutout_weather     - resources/atlite/cutouts/uk-{renewables_year}.nc
+      input.cutout_base        - resources/atlite/cutouts/uk-{gap_base_fit_year}.nc
+      input.espeni             - ESPENI demand CSV (base-year shape source)
+    """
+    import atlite
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts/ on path
+    from gap.demand_weather_model import (
+        national_temperature, daily_degree_days, fit_temperature_response,
+        hour_of_week_shape, project_demand, ELECTRIFICATION_CASES,
+    )
+
+    renewables_year = int(get_param_value(snakemake.params.renewables_year))
+    gap_case = str(get_param_value(getattr(snakemake.params, 'gap_case', 'central')))
+    base_fit_year = int(get_param_value(getattr(snakemake.params, 'gap_base_fit_year', 2019)))
+    if gap_case not in ELECTRIFICATION_CASES:
+        raise ValueError(f"Unknown gap_case '{gap_case}'. Options: {list(ELECTRIFICATION_CASES)}")
+
+    logger.info("=" * 60)
+    logger.info("GAP weather-demand model for temporal distribution")
+    logger.info(f"  Weather (renewables) year: {renewables_year}")
+    logger.info(f"  Base-fit year: {base_fit_year}   Electrification case: {gap_case}")
+    logger.info("=" * 60)
+
+    cutout_base_path = get_single_input_path(snakemake.input.cutout_base)
+    cutout_weather_path = get_single_input_path(snakemake.input.cutout_weather)
+
+    # 1. Fit the temperature response on the historical base year.
+    base_demand = _load_espeni_national_hourly(base_fit_year, logger)
+    base_temp = national_temperature(atlite.Cutout(path=cutout_base_path))
+    base_temp.index = _to_naive_index(base_temp.index)
+    dd = daily_degree_days(base_temp)
+    daily_demand = base_demand.resample("D").mean().reindex(dd.index).interpolate().bfill().ffill()
+    params = fit_temperature_response(daily_demand, dd["hdd"], dd["cdd"])
+    shape = hour_of_week_shape(base_demand)
+    logger.info(f"  Fitted response: base_mw={params['base_mw']:.0f}, "
+                f"heat_slope={params['heat_slope']:.1f}, cool_slope={params['cool_slope']:.1f}")
+
+    # 2. Project the national hourly shape onto the weather year's temperature.
+    weather_temp = national_temperature(atlite.Cutout(path=cutout_weather_path))
+    weather_temp.index = _to_naive_index(weather_temp.index)
+    c = ELECTRIFICATION_CASES[gap_case]
+    # annual_total_gwh/total_mult cancel under normalisation in the scaler below,
+    # so pass 1.0 — the level is set per-GSP from FES, not here.
+    national_shape = project_demand(weather_temp, params, shape,
+                                    annual_total_gwh=1.0,
+                                    heat_mult=c["heat_mult"], total_mult=1.0)
+    logger.info(f"  Projected national shape: {len(national_shape)} hourly steps, "
+                f"peak/mean ratio {national_shape.max()/national_shape.mean():.2f}")
+
+    # 3. Distribute across GSPs and scale to the FES annual level (same machinery
+    #    the eLOAD/DESSTINEE paths use).
+    return _scale_hourly_profile_to_fes_demand(
+        national_shape, demand_data, modelled_year, "gap (weather-demand model)", logger
+    )
 
 
 def generate_eload_profiles_from_excel(demand_data: pd.DataFrame, modelled_year: int, logger, profile_year: int = None) -> pd.DataFrame:

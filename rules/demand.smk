@@ -60,6 +60,29 @@ def get_disaggregation_config(scenario):
     return demand_disaggregation_configs.get(scenario, {"enabled": False})
 
 
+def _uses_gap_demand(scenario_id):
+    """True if this scenario draws its temporal demand shape from the gap model."""
+    return str(scenarios.get(scenario_id, {}).get("demand_timeseries", "ESPENI")).lower() == "gap"
+
+
+def get_gap_cutout_weather(wildcards):
+    """Weather-year cutout for the gap demand model (empty for non-gap scenarios)."""
+    sc = scenarios.get(wildcards.scenario, {})
+    if not _uses_gap_demand(wildcards.scenario):
+        return []
+    return f"{resources_path}/atlite/cutouts/uk-{sc.get('renewables_year')}.nc"
+
+
+def get_gap_cutout_base(wildcards):
+    """Base-fit-year cutout for the gap temperature regression (empty for non-gap)."""
+    sc = scenarios.get(wildcards.scenario, {})
+    if not _uses_gap_demand(wildcards.scenario):
+        return []
+    base_year = sc.get("gap_base_fit_year",
+                        config.get("gap", {}).get("base_fit_demand_year", 2019))
+    return f"{resources_path}/atlite/cutouts/uk-{base_year}.nc"
+
+
 def is_disaggregation_enabled(scenario):
     """Check if disaggregation is enabled for this scenario."""
     config = get_disaggregation_config(scenario)
@@ -255,7 +278,11 @@ rule build_base_demand:
         fes_data=get_fes_data_input,
         espeni="data/demand/espeni.csv",
         egy="data/demand/egy_7649_mmc1.xlsx",
-        base_network=f"{resources_path}/network/{{scenario}}_network.nc"
+        base_network=f"{resources_path}/network/{{scenario}}_network.nc",
+        # Gap weather-demand model: the weather-year and base-fit-year cutouts
+        # (empty list for non-gap scenarios so the DAG is unchanged for them).
+        cutout_weather=get_gap_cutout_weather,
+        cutout_base=get_gap_cutout_base
     output:
         network_with_base_demand=f"{resources_path}/network/{{scenario}}_network_demand_base.pkl",
         base_demand_profile=f"{resources_path}/demand/{{scenario}}_base_profile.csv"
@@ -266,6 +293,9 @@ rule build_base_demand:
         demand_year=lambda wildcards: scenarios[wildcards.scenario]["demand_year"],
         demand_timeseries=lambda wildcards: scenarios[wildcards.scenario].get("demand_timeseries", "ESPENI"),
         profile_year=lambda wildcards: scenarios[wildcards.scenario].get("profile_year", None),
+        renewables_year=lambda wildcards: scenarios[wildcards.scenario].get("renewables_year"),
+        gap_case=lambda wildcards: scenarios[wildcards.scenario].get("gap_case", config.get("gap", {}).get("case", "central")),
+        gap_base_fit_year=lambda wildcards: scenarios[wildcards.scenario].get("gap_base_fit_year", config.get("gap", {}).get("base_fit_demand_year", 2019)),
         network_model=lambda wildcards: scenarios[wildcards.scenario]["network_model"],
         timestep_minutes=lambda wildcards: scenarios[wildcards.scenario].get("timestep_minutes", 60),
         scenario=lambda wildcards: wildcards.scenario,

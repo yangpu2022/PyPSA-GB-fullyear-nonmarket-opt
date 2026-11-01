@@ -1,0 +1,75 @@
+#!/bin/bash -l
+# ──────────────────────────────────────────────────────────────────────────────
+# PyPSA-GB gap-demand full-year dispatch — UCL Myriad job ARRAY (Son of Grid Engine)
+#
+# One array task == one scenario. The task index selects a line from
+# myriad/scenario_names.txt (1-based), and that scenario is built to its
+# *_solved.nc target with a single-scenario Snakemake run.
+#
+# Array index layout (see scenario_names.txt):
+#     1- 82  HT30/HT40 x weather 1985..2025   (Holistic Transition)
+#    83-164  EE30/EE40 x weather 1985..2025   (Electric Engagement)
+#   165-246  HE30/HE40 x weather 1985..2025   (Hydrogen Evolution)
+#   247-328  FB30/FB40 x weather 1985..2025   (Falling Behind)
+#
+# Submit via myriad/submit_gap_dispatch.sh (handles the staging). Manual example:
+#     cd ~/Assume_GB/pypsa-gb
+#     qsub -t 1-82 -tc 20 myriad/run_gap_dispatch.qsub
+# ──────────────────────────────────────────────────────────────────────────────
+
+#$ -N gap_disp               # job name
+#$ -l h_rt=48:00:00          # wall clock — full-year 8760h LP can be slow
+#$ -l mem=16G                # memory per core
+#$ -pe smp 4                 # cores (passed to snakemake / the LP solver)
+#$ -cwd                      # run in the submission directory (the repo root)
+#$ -o logs/                  # stdout -> logs/
+#$ -e logs/                  # stderr -> logs/
+
+set -euo pipefail
+
+# Repo root = submission dir (-cwd). Override by submitting from elsewhere.
+REPO="${PYPSA_REPO:-$PWD}"
+CONDA_MOD="${ASSUME_CONDA_MOD:-python/miniconda3/24.3.0-0}"
+ENV="${PYPSA_ENV:-$HOME/Assume_GB/pypsa-gb-env}"
+NAMES="${SCENARIO_LIST:-$REPO/myriad/scenario_names.txt}"
+
+cd "$REPO"
+mkdir -p logs
+
+# Map the array task id -> scenario name.
+if [ -z "${SGE_TASK_ID:-}" ] || [ "${SGE_TASK_ID:-}" = "undefined" ]; then
+  echo "ERROR: SGE_TASK_ID not set — submit as an array (qsub -t ...)." >&2
+  exit 2
+fi
+SCENARIO="$(sed -n "${SGE_TASK_ID}p" "$NAMES")"
+if [ -z "$SCENARIO" ]; then
+  echo "ERROR: no scenario at line ${SGE_TASK_ID} of $NAMES" >&2
+  exit 2
+fi
+
+module load "$CONDA_MOD"
+eval "$(conda shell.bash hook)"
+conda activate "$ENV"
+
+TARGET="resources/network/${SCENARIO}_solved.nc"
+echo ">> [task ${SGE_TASK_ID}] scenario=${SCENARIO}"
+echo ">> target=${TARGET}  cores=${NSLOTS:-4}  repo=${REPO}"
+echo ">> started $(date)"
+
+# Single-scenario build: the Snakefile honours --config scenario=<id>.
+# --nolock: array tasks share the working dir; each writes scenario-specific files.
+snakemake "$TARGET" \
+  --config scenario="$SCENARIO" \
+  --cores "${NSLOTS:-4}" \
+  --rerun-incomplete \
+  --nolock \
+  --keep-going
+
+echo ">> finished $(date)"
+if [ -f "$TARGET" ]; then
+  echo ">> OK produced $TARGET"
+  ls -la "$TARGET"
+else
+  echo ">> FAILED: $TARGET not produced" >&2
+  exit 1
+fi
