@@ -1,0 +1,48 @@
+# LOCAL PILOT / MEMORY-SCALING ONLY — not part of the Myriad campaign.
+# Windowed so the full two-stage market+BM fits in laptop RAM; used to measure how
+# solve memory scales with horizon (2-week vs 3-month) to size the full-year need.
+HT30_cmp_w2012_2wk:
+  description: "LOCAL PILOT - HT30 component, 2-week winter window, two-stage market+BM"
+  modelled_year: 2030
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2012
+  demand_year: 2012
+  demand_timeseries: "component"
+  network_model: "Reduced"
+  solve_period:
+    enabled: true
+    start: "2030-01-13 00:00"
+    end: "2030-01-26 23:00"
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+  renewable_aggregation:
+    enabled: true
+  market:
+    enabled: true
+
+HT30_cmp_w2012_3mo:
+  description: "LOCAL PILOT - HT30 component, 3-month window, two-stage market+BM (memory scaling point)"
+  modelled_year: 2030
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2012
+  demand_year: 2012
+  demand_timeseries: "component"
+  network_model: "Reduced"
+  solve_period:
+    enabled: true
+    start: "2030-01-01 00:00"
+    end: "2030-03-31 23:00"
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+  renewable_aggregation:
+    enabled: true
+  market:
+    enabled: true

@@ -65,10 +65,15 @@ def _uses_gap_demand(scenario_id):
     return str(scenarios.get(scenario_id, {}).get("demand_timeseries", "ESPENI")).lower() == "gap"
 
 
+def _uses_weather_cutout(scenario_id):
+    """True if the demand shape needs the weather-year cutout (gap or component)."""
+    return str(scenarios.get(scenario_id, {}).get("demand_timeseries", "ESPENI")).lower() in ("gap", "component")
+
+
 def get_gap_cutout_weather(wildcards):
-    """Weather-year cutout for the gap demand model (empty for non-gap scenarios)."""
+    """Weather-year cutout for the gap/component demand model (empty otherwise)."""
     sc = scenarios.get(wildcards.scenario, {})
-    if not _uses_gap_demand(wildcards.scenario):
+    if not _uses_weather_cutout(wildcards.scenario):
         return []
     return f"{resources_path}/atlite/cutouts/uk-{sc.get('renewables_year')}.nc"
 

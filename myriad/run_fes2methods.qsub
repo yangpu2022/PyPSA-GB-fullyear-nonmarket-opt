@@ -1,0 +1,67 @@
+#!/bin/bash -l
+# ──────────────────────────────────────────────────────────────────────────────
+# PyPSA-GB FES two-method campaign — UCL Myriad job ARRAY (Son of Grid Engine)
+#
+# One array task == one scenario, built to its two-stage market target
+#   resources/market/<scenario>_balancing.nc   (wholesale clearing + BM redispatch).
+#
+# 984 scenarios = 2 demand methods (espeni | component) x 4 pathways x 3 years
+# (2030/40/50) x 41 weather years (1985-2025). Task index selects a line from
+# myriad/fes2methods_scenario_names.txt (1-based):
+#     1-492   espeni  method  (HT/EE/HE/FB x 30/40/50 x w1985..2025)
+#   493-984   component method (same order)
+#
+# Submit via myriad/submit_fes2methods.sh. Manual example (component, -tc 80):
+#     qsub -t 493-984 -tc 80 myriad/run_fes2methods.qsub
+# ──────────────────────────────────────────────────────────────────────────────
+
+#$ -N fes2m                  # job name
+#$ -l h_rt=48:00:00          # wall clock per task (two-stage full-year LP)
+#$ -l mem=24G                # memory per core (BM stage is nodal -> heavier than dispatch)
+#$ -pe smp 4                 # cores (passed to snakemake / the LP solver)
+#$ -cwd                      # run in the submission directory (repo root)
+#$ -o logs/                  # stdout -> logs/
+#$ -e logs/                  # stderr -> logs/
+
+set -euo pipefail
+
+REPO="${PYPSA_REPO:-$PWD}"
+CONDA_MOD="${ASSUME_CONDA_MOD:-python/miniconda3/24.3.0-0}"
+ENV="${PYPSA_ENV:-$HOME/Assume_GB/pypsa-gb-env}"
+NAMES="${SCENARIO_LIST:-$REPO/myriad/fes2methods_scenario_names.txt}"
+
+cd "$REPO"
+mkdir -p logs resources/market
+
+if [ -z "${SGE_TASK_ID:-}" ] || [ "${SGE_TASK_ID:-}" = "undefined" ]; then
+  echo "ERROR: SGE_TASK_ID not set — submit as an array (qsub -t ...)." >&2
+  exit 2
+fi
+SCENARIO="$(sed -n "${SGE_TASK_ID}p" "$NAMES" | tr -d '\r')"
+if [ -z "$SCENARIO" ]; then
+  echo "ERROR: no scenario at line ${SGE_TASK_ID} of $NAMES" >&2
+  exit 2
+fi
+
+module load "$CONDA_MOD"
+eval "$(conda shell.bash hook)"
+conda activate "$ENV"
+
+TARGET="resources/market/${SCENARIO}_balancing.nc"
+echo ">> [task ${SGE_TASK_ID}] scenario=${SCENARIO}"
+echo ">> target=${TARGET}  cores=${NSLOTS:-4}  repo=${REPO}"
+echo ">> started $(date)"
+
+snakemake "$TARGET" \
+  --config scenario="$SCENARIO" \
+  --cores "${NSLOTS:-4}" \
+  --rerun-incomplete \
+  --nolock \
+  --keep-going
+
+echo ">> finished $(date)"
+if [ -f "$TARGET" ]; then
+  echo ">> OK produced $TARGET"; ls -la "$TARGET"
+else
+  echo ">> FAILED: $TARGET not produced" >&2; exit 1
+fi

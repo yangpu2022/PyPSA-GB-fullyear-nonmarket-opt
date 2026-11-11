@@ -2461,8 +2461,10 @@ def generate_load_timeseries(demand_data: pd.DataFrame, dataset_name: str, model
         return generate_espeni_profiles(demand_data, modelled_year, logger, demand_year, embedded_generation_config, scenario_name)
     elif dataset_name_lower == "gap":
         return generate_gap_profiles(demand_data, modelled_year, logger)
+    elif dataset_name_lower == "component":
+        return generate_component_profiles(demand_data, modelled_year, logger)
     else:
-        raise ValueError(f"Unknown dataset: {dataset_name}. Supported: ESPENI, eload, desstinee, gap")
+        raise ValueError(f"Unknown dataset: {dataset_name}. Supported: ESPENI, eload, desstinee, gap, component")
 
 
 def _load_egy_profile(sheet_name: str, model_name: str, logger, profile_year: int = 2010) -> pd.Series:
@@ -2955,6 +2957,203 @@ def generate_gap_profiles(demand_data: pd.DataFrame, modelled_year: int, logger)
         demand_data, regional_temps, national_shape, params, shape, c,
         modelled_year, logger,
     )
+
+
+def _load_fes_component_fractions(fes_scenario, modelled_year, fes_year, demand_index, logger):
+    """Per-GSP heat/EV/base fractions of annual demand from the FES building blocks.
+
+    heat = Dem_BB004 + Dem_BB005 (heat pumps); ev = Dem_BB006 + Dem_BB007 (EVs);
+    base = Dem_BB008 (baseline). Returns a DataFrame indexed by the same GSP
+    names as ``demand_index`` with columns f_heat, f_ev, f_base summing to 1.
+    A GSP with no block data is treated as all baseline.
+    """
+    fes_data_path = get_single_input_path(snakemake.input.fes_data)
+    FES = pd.read_csv(fes_data_path, low_memory=False)
+    scen_col = next((c for c in ['FES Pathway', 'FES Scenario', '﻿FES Scenario',
+                                 'ï»¿FES Scenario'] if c in FES.columns), None)
+    year_col = str(modelled_year)
+
+    def block_by_gsp(bid):
+        sub = FES[(FES['Building Block ID Number'] == bid)]
+        if scen_col is not None:
+            sub = sub[sub[scen_col].map(_norm_label) == _norm_label(fes_scenario)]
+        if year_col not in sub.columns or len(sub) == 0:
+            return pd.Series(0.0, index=demand_index)
+        s = sub.groupby('GSP')[year_col].apply(lambda x: pd.to_numeric(x, errors='coerce').sum())
+        return s.reindex(demand_index).fillna(0.0)
+
+    heat = block_by_gsp('Dem_BB004') + block_by_gsp('Dem_BB005')
+    ev = block_by_gsp('Dem_BB006') + block_by_gsp('Dem_BB007')
+    base = block_by_gsp('Dem_BB008')
+    raw = pd.DataFrame({'heat': heat, 'ev': ev, 'base': base})
+    tot = raw.sum(axis=1)
+    frac = raw.div(tot.where(tot > 0, 1.0), axis=0)
+    missing = (tot <= 0) | tot.isna()
+    frac.loc[missing] = [0.0, 0.0, 1.0]
+    frac.columns = ['f_heat', 'f_ev', 'f_base']
+    frac = frac.fillna(0.0)
+    w = tot.where(tot > 0, 0.0)
+    denom = w.sum() if w.sum() > 0 else 1.0
+    logger.info(
+        "FES component split (national, energy-weighted): "
+        f"heat {100 * heat.sum() / denom:.1f}%, EV {100 * ev.sum() / denom:.1f}%, "
+        f"base {100 * base.sum() / denom:.1f}%"
+    )
+    return frac
+
+
+def _load_fes_acs_peak_mw(fes_scenario, modelled_year, logger):
+    """National FES ACS peak (MW) from resources/FES/fes2025_acs_peak_gw.csv, or None."""
+    try:
+        acs = pd.read_csv("resources/FES/fes2025_acs_peak_gw.csv")
+        row = acs[acs["pathway"].astype(str).str.strip().str.lower()
+                  == str(fes_scenario).strip().lower()]
+        col = f"acs_peak_{modelled_year}_GW"
+        if len(row) and col in acs.columns and pd.notna(row[col].iloc[0]):
+            return float(row[col].iloc[0]) * 1000.0
+        logger.warning(f"No ACS peak for {fes_scenario} {modelled_year}; baseline anchor skipped")
+    except Exception as exc:
+        logger.warning(f"Could not load FES ACS peak ({exc}); baseline anchor skipped")
+    return None
+
+
+def _doy_hour_remap(src_index, time_index):
+    """Position map: modelled (day-of-year, hour) -> first matching source position."""
+    si = pd.DatetimeIndex(src_index)
+    pos_by_key = {}
+    for p, (doy, hr) in enumerate(zip(si.dayofyear, si.hour)):
+        pos_by_key.setdefault((int(doy), int(hr)), p)
+    pm = np.empty(len(time_index), dtype=int)
+    for i, (doy, hr) in enumerate(zip(time_index.dayofyear, time_index.hour)):
+        p = pos_by_key.get((int(doy), int(hr)))
+        if p is None:
+            p = pos_by_key.get((min(int(doy), 365), int(hr)))
+        if p is None:
+            p = pos_by_key.get((int(doy), 0), 0)
+        pm[i] = p
+    return pm
+
+
+def generate_component_profiles(demand_data: pd.DataFrame, modelled_year: int, logger) -> pd.DataFrame:
+    """Component (hybrid) demand model: baseline + EV + heat-pump physics.
+
+    demand = baseline (today's ESPENI shape) + EV (smart overnight) + heat
+    (heat-pump electricity = heat demand / COP(T)). Each part is sized per GSP
+    from the FES building blocks so per-GSP annual energy equals the FES ED1
+    level (same as the gap path), and the national peak is anchored to the FES
+    ACS by lifting the baseline only (so the weather-driven volatility is not
+    inflated). See scripts/demand/component_demand_model.py for the physics.
+    """
+    import atlite
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts/ on path
+    from demand.component_demand_model import (
+        heat_electricity_shape, ev_overnight_shape, _mean_preserving_stretch,
+    )
+    from gap.demand_weather_model import national_temperature
+
+    renewables_year = int(get_param_value(snakemake.params.renewables_year))
+    fes_year = get_param_value(getattr(snakemake.params, 'fes_year', None))
+    fes_scenario = get_param_value(snakemake.params.fes_scenario)
+    logger.info("=" * 60)
+    logger.info("COMPONENT demand model (baseline + EV + heat/COP)")
+    logger.info(f"  Weather year: {renewables_year}   FES: {fes_scenario} {modelled_year}")
+    logger.info("=" * 60)
+
+    time_index = pd.date_range(
+        f"{modelled_year}-01-01 00:00:00", f"{modelled_year}-12-31 23:00:00", freq="h"
+    )
+
+    # 1. component split per GSP (fractions of each GSP's FES annual energy)
+    frac = _load_fes_component_fractions(fes_scenario, modelled_year, fes_year,
+                                         demand_data.index, logger)
+
+    # 2. baseline shape: national ESPENI (weather year), remapped to modelled year
+    base_series = _load_espeni_national_hourly(renewables_year, logger)
+    base_series.index = _to_naive_index(base_series.index)
+    s_base = np.asarray(base_series.values, float)[_doy_hour_remap(base_series.index, time_index)]
+    s_base = s_base / s_base.sum()
+
+    # 3. EV shape (smart overnight) on the modelled index
+    s_ev = ev_overnight_shape(np.asarray(time_index.hour))
+
+    # 4. heat shapes: per-GSP regional temperature (weather year), national fallback
+    cutout = atlite.Cutout(path=get_single_input_path(snakemake.input.cutout_weather))
+    nat_temp = national_temperature(cutout); nat_temp.index = _to_naive_index(nat_temp.index)
+    s_heat_nat = heat_electricity_shape(
+        np.asarray(nat_temp.values, float)[_doy_hour_remap(nat_temp.index, time_index)],
+        time_index=time_index)
+    regional_temps = {}
+    if fes_year is not None:
+        try:
+            regional_temps, (n_match, n_tot) = _build_gsp_regional_temperatures(
+                cutout, list(demand_data.index), fes_year, logger)
+        except Exception as exc:
+            logger.warning(f"Regional temperature build failed ({exc}); national heat shape for all GSPs")
+    heat_cache = {}
+
+    def heat_shape_for(gsp_name):
+        cn = canonical_gsp_name(gsp_name)
+        tg = regional_temps.get(cn)
+        if tg is None:
+            return s_heat_nat
+        if cn not in heat_cache:
+            t = tg.copy(); t.index = _to_naive_index(t.index)
+            heat_cache[cn] = heat_electricity_shape(
+                np.asarray(t.values, float)[_doy_hour_remap(t.index, time_index)],
+                time_index=time_index)
+        return heat_cache[cn]
+
+    # 5. national aggregates (for the baseline peak anchor)
+    E = demand_data.iloc[:, 0].astype(float) * 1000.0  # MWh per GSP
+    B_total = float((E * frac['f_base']).sum())
+    EV_total = float((E * frac['f_ev']).sum())
+    heat_tot = np.zeros(len(time_index))
+    for g in demand_data.index:
+        he = float(E.loc[g] * frac.loc[g, 'f_heat'])
+        if he > 0:
+            heat_tot += he * heat_shape_for(g)
+    other_tot = EV_total * s_ev + heat_tot
+
+    # 6. solve the baseline stretch alpha so the national peak == FES ACS
+    #    (optional; OFF by default for weather ensembles so the peak stays
+    #     weather-driven and mild years are not forced up to the design peak)
+    anchor_on = bool(get_param_value(getattr(snakemake.params, 'component_acs_anchor', False)))
+    acs_mw = _load_fes_acs_peak_mw(fes_scenario, modelled_year, logger) if anchor_on else None
+    s_base_anchored = s_base
+    if acs_mw is not None and B_total > 0:
+        peak_now = (B_total * s_base + other_tot).max()
+        if peak_now < acs_mw:
+            lo, hi = 1.0, 8.0
+            for _ in range(60):
+                mid = 0.5 * (lo + hi)
+                trial = _mean_preserving_stretch(s_base, mid)
+                if (B_total * np.clip(trial, 0, None) + other_tot).max() < acs_mw:
+                    lo = mid
+                else:
+                    hi = mid
+            alpha = 0.5 * (lo + hi)
+            s_base_anchored = np.clip(_mean_preserving_stretch(s_base, alpha), 0.0, None)
+            s_base_anchored = s_base_anchored / s_base_anchored.sum()
+            logger.info(f"  baseline anchor: peak {peak_now/1e3:.1f} -> "
+                        f"{(B_total*s_base_anchored+other_tot).max()/1e3:.1f} GW "
+                        f"(FES ACS {acs_mw/1e3:.1f}), alpha={alpha:.2f}")
+        else:
+            logger.info(f"  national peak {peak_now/1e3:.1f} GW already >= ACS {acs_mw/1e3:.1f}; no anchor")
+
+    # 7. assemble per-GSP hourly demand (MW)
+    timeseries = {}
+    for g in demand_data.index:
+        Eg = float(E.loc[g]); fr = frac.loc[g]
+        series = (Eg * fr['f_base'] * s_base_anchored
+                  + Eg * fr['f_ev'] * s_ev
+                  + Eg * fr['f_heat'] * heat_shape_for(g))
+        timeseries[g] = pd.Series(series, index=time_index)
+
+    p_set = pd.DataFrame(timeseries, index=time_index)
+    logger.info(f"component profiles: {p_set.shape[1]} GSPs x {len(time_index)} h, "
+                f"{p_set.to_numpy().sum()/1e6:.2f} TWh, national peak "
+                f"{p_set.sum(axis=1).max()/1e3:.1f} GW")
+    return p_set
 
 
 def generate_eload_profiles_from_excel(demand_data: pd.DataFrame, modelled_year: int, logger, profile_year: int = None) -> pd.DataFrame:

@@ -127,6 +127,15 @@ def load_config(config_dir: Optional[Path] = None) -> Dict[str, Any]:
     if not scenarios_raw and (config_dir / "scenarios_master.yaml").exists():
         scenarios_master = load_yaml(config_dir / "scenarios_master.yaml")
         scenarios_raw = scenarios_master.get("scenarios", {})
+
+    # Merge any campaign scenario files in config/scenarios.d/*.yaml (optional).
+    # Keeps large generated matrices out of the hand-edited scenarios.yaml.
+    scenarios_d = config_dir / "scenarios.d"
+    if scenarios_d.is_dir():
+        for extra in sorted(scenarios_d.glob("*.yaml")):
+            extra_raw = load_yaml(extra) or {}
+            for k, v in extra_raw.items():
+                scenarios_raw.setdefault(k, v)
     
     # Extract clustering presets
     clustering_presets = clustering_config.get("presets", {})

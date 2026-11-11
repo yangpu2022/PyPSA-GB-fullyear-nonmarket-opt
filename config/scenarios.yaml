@@ -9329,3 +9329,3455 @@ FB40_gap_w2025:
   renewable_aggregation:
     enabled: true
 
+
+# ============================================================================
+# FES2050 WEATHER-YEAR WHOLESALE STUDY (reconstructed by Claude 2026-11-01)
+# 4 FES2025 pathways x 41 weather years (1985-2025), modelled_year 2050,
+# Reduced network, demand=ESPENI(2020-shape)+FES level, wholesale_only,
+# daily (24h) rolling windows + etys upgrades inherited from defaults.yaml.
+# Recipe recovered from .snakemake cache to match the 35 already-solved runs.
+# ============================================================================
+HT50_w1985:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 1985"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 1985
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w1986:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 1986"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 1986
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w1987:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 1987"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 1987
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w1988:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 1988"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 1988
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w1989:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 1989"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 1989
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w1990:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 1990"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 1990
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w1991:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 1991"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 1991
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w1992:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 1992"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 1992
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w1993:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 1993"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 1993
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w1994:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 1994"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 1994
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w1995:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 1995"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 1995
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w1996:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 1996"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 1996
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w1997:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 1997"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 1997
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w1998:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 1998"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 1998
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w1999:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 1999"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 1999
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2000:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2000"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2000
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2001:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2001"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2001
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2002:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2002"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2002
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2003:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2003"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2003
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2004:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2004"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2004
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2005:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2005"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2005
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2006:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2006"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2006
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2007:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2007"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2007
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2008:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2008"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2008
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2009:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2009"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2009
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2010:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2010"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2010
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2011:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2011"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2011
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2012:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2012"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2012
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2013:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2013"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2013
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2014:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2014"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2014
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2015:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2015"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2015
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2016:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2016"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2016
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2017:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2017"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2017
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2018:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2018"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2018
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2019:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2019"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2019
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2020:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2020"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2020
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2021:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2021"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2021
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2022:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2022"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2023:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2023"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2023
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2024:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2024"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2024
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HT50_w2025:
+  description: "FES2025 Holistic Transition 2050 wholesale - Reduced, weather 2025"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2025
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w1985:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 1985"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 1985
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w1986:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 1986"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 1986
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w1987:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 1987"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 1987
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w1988:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 1988"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 1988
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w1989:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 1989"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 1989
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w1990:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 1990"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 1990
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w1991:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 1991"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 1991
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w1992:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 1992"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 1992
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w1993:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 1993"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 1993
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w1994:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 1994"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 1994
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w1995:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 1995"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 1995
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w1996:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 1996"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 1996
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w1997:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 1997"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 1997
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w1998:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 1998"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 1998
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w1999:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 1999"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 1999
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2000:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2000"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2000
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2001:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2001"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2001
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2002:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2002"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2002
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2003:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2003"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2003
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2004:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2004"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2004
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2005:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2005"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2005
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2006:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2006"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2006
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2007:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2007"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2007
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2008:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2008"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2008
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2009:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2009"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2009
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2010:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2010"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2010
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2011:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2011"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2011
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2012:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2012"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2012
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2013:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2013"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2013
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2014:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2014"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2014
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2015:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2015"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2015
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2016:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2016"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2016
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2017:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2017"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2017
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2018:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2018"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2018
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2019:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2019"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2019
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2020:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2020"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2020
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2021:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2021"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2021
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2022:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2022"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2022
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2023:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2023"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2023
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2024:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2024"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2024
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+EE50_w2025:
+  description: "FES2025 Electric Engagement 2050 wholesale - Reduced, weather 2025"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2025
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w1985:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 1985"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 1985
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w1986:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 1986"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 1986
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w1987:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 1987"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 1987
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w1988:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 1988"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 1988
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w1989:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 1989"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 1989
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w1990:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 1990"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 1990
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w1991:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 1991"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 1991
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w1992:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 1992"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 1992
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w1993:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 1993"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 1993
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w1994:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 1994"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 1994
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w1995:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 1995"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 1995
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w1996:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 1996"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 1996
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w1997:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 1997"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 1997
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w1998:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 1998"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 1998
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w1999:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 1999"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 1999
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2000:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2000"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2000
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2001:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2001"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2001
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2002:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2002"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2002
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2003:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2003"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2003
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2004:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2004"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2004
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2005:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2005"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2005
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2006:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2006"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2006
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2007:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2007"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2007
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2008:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2008"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2008
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2009:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2009"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2009
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2010:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2010"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2010
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2011:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2011"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2011
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2012:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2012"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2012
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2013:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2013"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2013
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2014:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2014"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2014
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2015:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2015"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2015
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2016:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2016"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2016
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2017:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2017"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2017
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2018:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2018"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2018
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2019:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2019"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2019
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2020:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2020"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2020
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2021:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2021"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2021
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2022:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2022"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2022
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2023:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2023"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2023
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2024:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2024"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2024
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+HE50_w2025:
+  description: "FES2025 Hydrogen Evolution 2050 wholesale - Reduced, weather 2025"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2025
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w1985:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 1985"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 1985
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w1986:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 1986"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 1986
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w1987:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 1987"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 1987
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w1988:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 1988"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 1988
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w1989:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 1989"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 1989
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w1990:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 1990"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 1990
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w1991:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 1991"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 1991
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w1992:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 1992"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 1992
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w1993:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 1993"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 1993
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w1994:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 1994"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 1994
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w1995:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 1995"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 1995
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w1996:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 1996"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 1996
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w1997:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 1997"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 1997
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w1998:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 1998"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 1998
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w1999:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 1999"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 1999
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2000:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2000"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2000
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2001:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2001"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2001
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2002:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2002"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2002
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2003:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2003"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2003
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2004:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2004"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2004
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2005:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2005"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2005
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2006:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2006"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2006
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2007:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2007"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2007
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2008:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2008"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2008
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2009:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2009"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2009
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2010:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2010"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2010
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2011:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2011"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2011
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2012:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2012"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2012
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2013:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2013"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2013
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2014:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2014"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2014
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2015:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2015"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2015
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2016:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2016"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2016
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2017:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2017"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2017
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2018:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2018"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2018
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2019:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2019"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2019
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2020:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2020"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2020
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2021:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2021"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2021
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2022:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2022"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2022
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2023:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2023"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2023
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2024:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2024"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2024
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
+FB50_w2025:
+  description: "FES2025 Falling Behind 2050 wholesale - Reduced, weather 2025"
+  modelled_year: 2050
+  FES_year: 2025
+  FES_scenario: "Falling Behind"
+  renewables_year: 2025
+  demand_year: 2020
+  demand_timeseries: "ESPENI"
+  network_model: "Reduced"
+  etys_upgrades:
+    enabled: true
+  solve_period:
+    enabled: true
+    start: "2050-01-01 00:00"
+    end: "2050-12-31 23:00"
+  market:
+    enabled: true
+    wholesale_only: true
+    wholesale:
+      mode: "rolling_day_ahead"
+
