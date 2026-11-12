@@ -47,6 +47,13 @@ module load "$CONDA_MOD"
 eval "$(conda shell.bash hook)"
 conda activate "$ENV"
 
+# UCL academic Gurobi floating license (token server lic-rhel01.ad.ucl.ac.uk).
+# Point the env's pip gurobipy at it; do NOT `module load gurobi` (its v11 libs
+# would shadow the env's v12). Without this, gurobipy falls back to the bundled
+# size-limited demo license and the full-year LP fails ("Model too large").
+export GRB_LICENSE_FILE="${GRB_LICENSE_FILE:-/shared/ucl/apps/Gurobi/gurobi.lic}"
+echo ">> GRB_LICENSE_FILE=${GRB_LICENSE_FILE}"
+
 TARGET="resources/market/${SCENARIO}_balancing.nc"
 echo ">> [task ${SGE_TASK_ID}] scenario=${SCENARIO}"
 echo ">> target=${TARGET}  cores=${NSLOTS:-4}  repo=${REPO}"
